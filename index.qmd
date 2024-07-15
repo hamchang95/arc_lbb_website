@@ -1,0 +1,9 @@
+---
+title: "ARC-LBB"
+---
+
+This is a website for ARC-LBB (Assessing the Risk of Crime in London Borough of Barnet) project, which was completed in part of the Data Science Accelerator programme by Office for National Statistics.
+
+::: {.callout-important appearance="minimal"}
+"Cognitivie behaviour therapy (CBT) for individuals to prevent crimes has shown to be less effective in countries with higher level of socioeconomic inequality like UK compared to countries with lesser inequality like Canada." - Crime Surveys User Conference (2024)
+:::

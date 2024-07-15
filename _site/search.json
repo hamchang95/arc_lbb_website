@@ -1,0 +1,51 @@
+[
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "ARC-LBB",
+    "section": "",
+    "text": "This is a website for ARC-LBB (Assessing the Risk of Crime in London Borough of Barnet) project, which was completed in part of the Data Science Accelerator programme by Office for National Statistics.\n\n\n\n\n\n\n“Cognitivie behaviour therapy (CBT) for individuals to prevent crimes has shown to be less effective in countries with higher level of socioeconomic inequality like UK compared to countries with lesser inequality like Canada.” - Crime Surveys User Conference (2024)"
+  },
+  {
+    "objectID": "about.html",
+    "href": "about.html",
+    "title": "About",
+    "section": "",
+    "text": "Data Sourcing\n\nPolice\nOpen Street Map\n\nData Processing\nEDA\nAutocorrelation\n\nGlobal\nLocal\n\nKriging\nPCA\nMultivariate Kriging\n\nModel Evaluation\n\nGeographically Weighted Regression\n\nModel Evaluation"
+  },
+  {
+    "objectID": "eda.html",
+    "href": "eda.html",
+    "title": "EDA",
+    "section": "",
+    "text": "Code\n#--Install / load packages\nrm(list = ls())\npacman::p_load(sf, here, tmap, osmdata, tidyverse, data.table, rio, tidyverse, flextable, mapview, units, spdep, deldir, sp, rgeoda, leaflet, viridis, crosstalk, leaflet.extras, plotly)\n\n#--Import street-level crime data\ncrime &lt;- rio::import(here::here(\"3_output\", \"crime_2024-05-09.csv\")) |&gt;\n    dplyr::mutate(category = stringr::str_replace_all(category, \"-\", \" \")) |&gt;\n    sf::st_as_sf(coords = c(\"location.longitude\", \"location.latitude\"), crs = 4326, dim = \"XY\") \n    #from 2021-04 to 2024-03\n\n#--Import Barnet shapefile\nbnt_shp &lt;- sf::st_read(here(\"1_data\", \"9_geo\", \"bnt_lad.json\"), crs = 4326, quiet = TRUE) |&gt;\n  st_make_valid()\n\n#--Get bounding box \nbb &lt;- st_bbox(bnt_shp) \n\n#--Filter crime that intersects or is in within Barnet file\n#crime_bnt &lt;- crime[which(st_covers(bnt_shp, crime, sparse = FALSE)),]\ncrime_bnt &lt;- crime[which(st_intersects(bnt_shp, crime, sparse = FALSE)),]\n\n#--Amend date column\ncrime_bnt$date &lt;- as.Date(paste0(crime_bnt$month, \"-01\"))\n\n#--Create shared_data\nshared_data &lt;- SharedData$new(crime_bnt)"
+  },
+  {
+    "objectID": "eda.html#set-up",
+    "href": "eda.html#set-up",
+    "title": "EDA",
+    "section": "",
+    "text": "Code\n#--Install / load packages\nrm(list = ls())\npacman::p_load(sf, here, tmap, osmdata, tidyverse, data.table, rio, tidyverse, flextable, mapview, units, spdep, deldir, sp, rgeoda, leaflet, viridis, crosstalk, leaflet.extras, plotly)\n\n#--Import street-level crime data\ncrime &lt;- rio::import(here::here(\"3_output\", \"crime_2024-05-09.csv\")) |&gt;\n    dplyr::mutate(category = stringr::str_replace_all(category, \"-\", \" \")) |&gt;\n    sf::st_as_sf(coords = c(\"location.longitude\", \"location.latitude\"), crs = 4326, dim = \"XY\") \n    #from 2021-04 to 2024-03\n\n#--Import Barnet shapefile\nbnt_shp &lt;- sf::st_read(here(\"1_data\", \"9_geo\", \"bnt_lad.json\"), crs = 4326, quiet = TRUE) |&gt;\n  st_make_valid()\n\n#--Get bounding box \nbb &lt;- st_bbox(bnt_shp) \n\n#--Filter crime that intersects or is in within Barnet file\n#crime_bnt &lt;- crime[which(st_covers(bnt_shp, crime, sparse = FALSE)),]\ncrime_bnt &lt;- crime[which(st_intersects(bnt_shp, crime, sparse = FALSE)),]\n\n#--Amend date column\ncrime_bnt$date &lt;- as.Date(paste0(crime_bnt$month, \"-01\"))\n\n#--Create shared_data\nshared_data &lt;- SharedData$new(crime_bnt)"
+  },
+  {
+    "objectID": "eda.html#exploratory-map",
+    "href": "eda.html#exploratory-map",
+    "title": "EDA",
+    "section": "Exploratory Map",
+    "text": "Exploratory Map\n\n\n\n\n\n\nDate\n\n\n\n\n\n\nCategory"
+  },
+  {
+    "objectID": "eda.html#spatio-temporal-distribution-of-crimes-by-category",
+    "href": "eda.html#spatio-temporal-distribution-of-crimes-by-category",
+    "title": "EDA",
+    "section": "Spatio-Temporal Distribution of Crimes by Category",
+    "text": "Spatio-Temporal Distribution of Crimes by Category\n\nMap by Category\n\n\nCode\n#--Assign colour palette\nn_pal &lt;- length(unique(crime_bnt$category))\ncrime_pal &lt;- leaflet::colorFactor(turbo(n_pal), crime_bnt$category)\n\n#--Create filters\nmonth_slider &lt;- crosstalk::filter_slider(\"date\", \"Date\", shared_data, ~date, width = \"100%\")\ncategory_checkbox &lt;- crosstalk::filter_checkbox(\"category\", \"Category\", shared_data, ~category)\n\n#--Create map\nm_eda &lt;- leaflet(shared_data) |&gt;\n  leaflet::addProviderTiles(\"CartoDB.Positron\")|&gt;\n  leaflet::addCircleMarkers(color = ~crime_pal(category), radius = 2) |&gt;\n  leaflet::addLegend(\"bottomright\", pal = crime_pal, values = ~category, title = \"Category\")\n\n#--Pull everything together\ncrosstalk::bscols(\n  widths = c(12, 3, 9),\n  month_slider,\n  category_checkbox,\n  m_eda\n)\n\n\n\n\n\n\nDate\n\n\n\n\n\n\nCategory\n\n\n\n\nanti social behaviour\n\n\n\n\n\nbicycle theft\n\n\n\n\n\nburglary\n\n\n\n\n\ncriminal damage arson\n\n\n\n\n\ndrugs\n\n\n\n\n\nother crime\n\n\n\n\n\nother theft\n\n\n\n\n\npossession of weapons\n\n\n\n\n\npublic order\n\n\n\n\n\nrobbery\n\n\n\n\n\nshoplifting\n\n\n\n\n\ntheft from the person\n\n\n\n\n\nvehicle crime\n\n\n\n\n\nviolent crime\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nTrend by Category\n\n\nCode\n#--Create timeseries data by category\nct_crime &lt;- crime_bnt |&gt;\n    st_drop_geometry() |&gt;\n    group_by(category, date) |&gt;\n    tally() |&gt;\n    arrange(desc(n))\n\n#--Create shared_data\nshared_data_ct &lt;- SharedData$new(ct_crime)\n\n#--Create filter\nmonth_slider_ct &lt;- crosstalk::filter_slider(\"date\", \"Date\", shared_data_ct, ~date, step = 1, width = \"100%\")\n\n#--Trend plot\npl_trend &lt;- plotly::plot_ly(shared_data_ct, x = ~date, y = ~n, color = ~category, colors = viridis_pal(option = \"H\")(14)) |&gt;\n  plotly::add_lines() |&gt;\n  plotly::layout(xaxis = list(title = \"\"),\n                 yaxis = list(title = \"Number of Crimes\\n\"))\n\n#--Pull everything together\ncrosstalk::bscols(\n  widths = c(12, 12),\n  month_slider_ct,\n  pl_trend\n)\n\n\n\n\n\n\nDate\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nOverall Frequency\n\nIn the last three years\n\n\nCode\n#--Create count data by category\nct_crime2 &lt;- crime_bnt |&gt;\n    st_drop_geometry() |&gt;\n    group_by(category) |&gt;\n    tally() |&gt;\n    arrange(desc(n)) \n\n#--Frequency plot\npl_freq &lt;- plot_ly(ct_crime2, x = ~stats::reorder(category, n, decreasing = TRUE), y = ~n, color = ~category, colors = viridis_pal(option = \"H\")(14)) |&gt;\n  plotly::add_bars()|&gt;\n  plotly::layout(xaxis = list(title = \"\"),\n                 yaxis = list(title = \"Number of Crimes\\n\"))\n\npl_freq\n\n\n\n\n\n\n\n\nIn the last 12 months\n\n\nCode\n#--Create count data by category in the last 12 months\nct_crime3 &lt;- crime_bnt |&gt;\n    st_drop_geometry() |&gt;\n    filter(date &gt;= ymd(\"2023-04-01\")) |&gt;\n    group_by(category) |&gt;\n    tally() |&gt;\n    arrange(desc(n)) \n\n#--Frequency plot\npl_freq2 &lt;- plot_ly(ct_crime3, x = ~stats::reorder(category, n, decreasing = TRUE), y = ~n, color = ~category, colors = viridis_pal(option = \"H\")(14)) |&gt;\n  plotly::add_bars()|&gt;\n  plotly::layout(xaxis = list(title = \"\"),\n                 yaxis = list(title = \"Number of Crimes\\n\"))\n\npl_freq2"
+  },
+  {
+    "objectID": "limitation.html",
+    "href": "limitation.html",
+    "title": "Limitation",
+    "section": "",
+    "text": "Data Quality\n\nPatrol\nTendency to be more crimes near police station"
+  }
+]
