@@ -1,0 +1,545 @@
+---
+title: "Crime EDA"
+execute: 
+  eval: false
+  echo: false
+knitr:
+  opts_chunk: 
+    collapse: false
+    comment: "#>"
+format:
+  html:
+    toc: true
+    html-math-method: katex
+    css: styles.css
+editor_options: 
+  chunk_output_type: console
+---
+
+## Set Up
+
+```{r setting}
+#--Install / load packages
+rm(list = ls())
+Sys.setenv(R_LIBCURL_SSL_REVOKE_BEST_EFFORT=TRUE)
+
+pacman::p_load(sf, here, tmap, osmdata, tidyverse, data.table, rio,flextable, mapview, units, knitr, spdep, deldir, sp, rgeoda)
+
+#--Import street-level crime data
+crime <- rio::import(here::here("3_output", "crime_2024-05-09.csv")) |>
+    dplyr::mutate(category = stringr::str_replace_all(category, "-", " ")) |>
+    sf::st_as_sf(coords = c("location.longitude", "location.latitude"), crs = 4326, dim = "XY") 
+    #from 2021-04 to 2024-03
+
+#--Import Barnet shapefile
+bnt_shp <- sf::st_read(here("1_data", "9_geo", "bnt_lad.json"), crs = 4326) |>
+  st_make_valid()
+
+#--Get bounding box 
+st_bbox(bnt_shp) -> bb
+
+#--Filter crime that intersects or is in within Barnet file
+#crime_bnt <- crime[which(st_covers(bnt_shp, crime, sparse = FALSE)),]
+crime_bnt <- crime[which(st_intersects(bnt_shp, crime, sparse = FALSE)),]
+
+
+ggplot() + 
+  geom_sf(data = bnt_shp, alpha = 0.1)+
+  #geom_sf(data = asb_bnt2, colour = "red", size = 0.3)+
+  #geom_sf(data = vc_bnt2, colour = "purple", size = 0.3)+
+  #geom_sf(data = other_bnt2, colour = "darkgreen", size = 0.3)+
+  coord_sf(xlim = c(bb[1], bb[3]), ylim = c(bb[2], bb[4]))
+  
+rm(crime)
+```
+
+## Crime by Frequency
+
+### Most Prevalent Crimes in Barnet All-Time
+
+```{r pop_all_time}
+crime_bnt |>
+    st_drop_geometry() |>
+    group_by(category) |>
+    tally() |>
+    arrange(desc(n))  |>
+    flextable()
+
+```
+
+\
+Anti-social behaviour, violent crime, other theft, vehicle crime, and theft from the person were the five most prevalent crimes.\
+
+### Most Prevalent Crime in Barnet in the Last 12 Months
+
+```{r pop_last_two_yrs}
+#--Add new month
+crime_bnt <- crime_bnt |> 
+  mutate(month_new = ym(month))
+
+#--Create date range
+range1 <- lubridate::rollforward(max(crime_bnt$month_new)-365*1) |> substr(1, 7)
+range2 <- max(crime_bnt$month)
+range <- seq(ym(range1), ym(range2), by = "month") |> substr(1,7)
+
+#--Tbl
+crime_bnt |> 
+  st_drop_geometry() |>
+  filter(month %in% range) |> 
+  group_by(category) |>
+  tally() |>
+  arrange(desc(n))  |>
+  flextable()
+  
+```
+
+Interestingly, in the last 12 months, the number of violent crimes exceeded that of anti-social behaviour. They were followed by vehicle crime, other theft and burglary.
+
+```{r}
+crime_bnt |>
+    st_drop_geometry() |>
+    mutate(month_new = tsibble())
+    group_by(month_new) |>
+    tally()  |>
+    tsibble::tsibble(index = month_new) |>
+    rename(month = month_new)
+
+
+```
+
+## Source Places
+
+```{r}
+#--Import places data 
+source(here("2_script", "osm_process.r"))
+
+#--Check result           
+ggplot() + 
+  geom_sf(data = bnt_shp, alpha = 0.1)+
+  #geom_sf(data = poi_bnt[["park"]], fill = "green")+
+  geom_sf(data=poi_bnt_fin[["office_lawyer"]], fill = "blue")
+  #geom_sf(data = vc_bnt2, colour = "purple", size = 0.3)+
+  #geom_sf(data = other_bnt2, colour = "darkgreen", size = 0.3)+
+  #coord_sf(xlim = c(bb[1], bb[3]), ylim = c(bb[2], bb[4]))
+
+#--poi_bnt2 makes more sense, hence, removing poi_bnt & poi_bnt_check
+#rm(poi_bnt); rm(poi_bnt_check)
+```
+
+## Count the Number of Crimes and Places within Each Grid 
+### Create Grid
+```{r}
+#--Need to reproject to OSGB36
+bnt_shp <- st_transform(bnt_shp, 27700)
+
+#--Function to make grids and select those intersecting Barnet boundary
+make_bnt_grid <- function(m){
+  #--Make grids of n x n m^2 
+  grid <- st_make_grid(bnt_shp, cellsize = units::as_units(m, "m")) 
+
+  #--Select grids only that intsersect the Barnet boundary
+  index <- which(lengths(st_intersects(grid, bnt_shp))>0)
+  grid <- grid[index]
+
+  return(grid)
+}
+
+#--Apply
+grid_list <- list()
+meter_list <- seq(100, 400, by = 100)
+meter_list[5] <-350
+
+for (i in seq_along(meter_list)){
+  grid_list[[i]] <- make_bnt_grid(meter_list[i])  
+}
+
+names(grid_list) <- meter_list
+```
+
+Unless specified otherwise, `cellsize` in `st_make_grid()` is `c(diff(st_bbox(x)[c(1, 3)]), diff(st_bbox(x)[c(2, 4)]))/n`, where `n = c(10, 10)`.
+
+### Select necessary columns
+```{r}
+poi_bnt_fin <- map(poi_bnt_fin, ~select(.x, osm_id, geometry))
+
+crime_bnt <- crime_bnt |>
+  select(id, category, month)
+
+
+```
+
+### Count the Number
+
+```{r}
+#--Function: check which grid that each point belongs to and add it to the point dataframe
+# Pre-process grid objects
+grid_sf_list <- lapply(grid_list, function(grid) {
+  grid_sf <- grid |>
+    st_as_sf() |>
+    st_transform(4326) |>
+    mutate(grid_id = row_number())
+  return(grid_sf)
+})
+
+# Define ct_pts function with pre-processed grid_sf
+ct_pts <- function(grid_sf, pts){
+  index <- st_within(pts, grid_sf) |> as.integer()
+  print("indexed")
+
+  ct <- data.frame(grid_id = index) |>
+    group_by(grid_id) |>
+    tally() |>
+    arrange(desc(n))
+  print("counted")
+  
+  joined_ct <- grid_sf |>
+    left_join(ct) |>
+    arrange(desc(n))|>
+    mutate(n = ifelse(is.na(n), 0, n))
+  print("joined")
+
+  return(joined_ct)
+}
+
+# Initialize result lists
+ct_poi <- vector("list", length = length(grid_list))
+ct_crime <- vector("list", length = length(grid_list))
+ct_all <- vector("list", length = length(grid_list))
+
+# Loop over grid objects
+for (i in seq_along(grid_list)){
+  # Count crime points
+  ct_crime[[i]] <- ct_pts(grid_sf_list[[i]], crime_bnt)
+}
+
+for (i in seq_along(grid_list)){
+  # Loop over poi_bnt_fin
+  for (j in seq_along(poi_bnt_fin)){
+    # Count place points
+    ct_poi[[i]][[j]] <- ct_pts(grid_sf_list[[i]], poi_bnt_fin[[j]])
+    
+    # Name the count of points with their names
+    names(ct_poi[[i]][[j]])[2] <- names(poi_bnt_fin)[j]
+  }
+}
+
+ct_all[[5]]
+
+for (i in seq_along(grid_list)) {
+  # Initialize the result for the current grid item
+  ct_all[[i]] <- ct_crime[[i]]
+  
+  for (j in seq_along(poi_bnt_fin)) {
+    # Join the points for the current poi_bnt_fin to the current ct_all item
+    if (j != length(poi_bnt_fin)) {  # Skip the last item since it has been already joined with crime
+      ct_all[[i]] <- left_join(ct_all[[i]], st_drop_geometry(ct_poi[[i]][[j]]))
+    }
+  }
+}
+
+for (i in seq_along(ct_all)){
+  index <- which(lengths(st_intersects(ct_all[[i]], st_transform(bnt_shp, 4326)))>0)
+
+  ct_all[[i]] <- ct_all[[i]][index,]
+}
+
+
+#--Check result           
+ggplot() + 
+  geom_sf(data=ct_all[[1]], aes(fill = n))+
+  geom_sf(data = bnt_shp, alpha = 0.1)
+
+```
+
+## Spatial Autocorrelation
+### Subset Crime Data
+```{r}
+#--Subset crime data 
+asb <- subset(crime_bnt, category == "anti social behaviour")
+vc <- subset(crime_bnt, category == "violent crime")
+other <- subset(crime_bnt, category == "other theft")
+vhc <- subset(crime_bnt, category == "vehicle crime")
+tfp <- subset(crime_bnt, category == "theft from the person")
+brg <- subset(crime_bnt, category == "burglary")
+
+```
+
+### Create Distance-Based Weight
+```{r}
+#--Get X and Y coordinates
+asb_coords <- st_coordinates(asb_sp)
+
+#--To find a critical threshold, find the k-nearest neighbors for k = 1
+knn1 <- knearneigh(asb_coords)
+
+#--Convert k1 to nb
+k1 <- knn2nb(knn1)
+
+#--Calculate critical threshold: maximum distance between neighbours
+critical_threshold <- max(unlist(nbdists(k1, asb_coords)))
+
+critical_threshold
+
+#--Calculate distance-band weights
+nb_dist_band <- dnearneigh(asb_coords, 0, critical_threshold)
+
+summary(nb_dist_band)
+
+#--Get cardinality: number of neighbours for each point
+dist_band_card <- spdep::card(nb_dist_band)
+
+#--Check number of neighbours
+ggplot() +
+  geom_histogram(aes(x=dist_band_card)) +
+  xlab("Number of Neighbours")
+
+#--Connectivity graph
+#plot(nb_dist_band, asb_coords, lwd=.2, col="blue", cex = .5)
+
+#--Create weight from nb
+dist_weight <- nb2listw(nb_dist_band)
+```
+
+### Count the Number of Neighbouring Points of Each Crime Point
+```{r}
+#--Count 
+counts <- numeric(nrow(asb_sp))
+
+for (i in seq_along(asb_sp)){
+  #--Get a ponit 
+  point <- asb_sp[i,]$geometry
+  
+  #--Get buffer basically area within 100m 
+  buffer <- st_buffer(point, units::as_units(100, "m"))
+  
+  #--Test if the asb points intersect with buffer
+  test <- st_intersects(asb_sp$geometry, buffer)
+
+  #--Calculate the number of points intersecting buffer
+  n <- which(sapply(test, function(x) sum(x) != 0)) |> length()
+
+  #--Exclude the point itself
+  counts[i] <- n - 1
+  
+}
+
+# Assign the counts to the 'count' column of the spatial points object
+asb_sp$count <- counts
+
+# Check the structure of 'asb_sp' to ensure the count variable is added correctly
+summary(asb_sp)
+```
+
+### Global Autocorrelation Test
+```{r}
+# Conduct global Moran's I analysis
+set.seed(1234)
+moran <- moran.test(asb_sp$count, listw = dist_weight)
+  #using the count of ASB crimes within 100m of each point as the variable to assess for global spatial autocorrelation
+
+# --Print Moran's I test results
+print(moran) # strong positive autocorrelation, that is, nearby points tend to have similar values
+```
+
+### Local Autocorrelation Test
+```{r}
+# --Perform Local Moran's I analysis
+local_moran <- spdep::localmoran(asb_sp$count, dist_weight)
+asb_sp$morans_I <- local_moran[, 1]
+asb_sp$expected_I <- local_moran[, 2]
+asb_sp$p_values <- local_moran[,5]
+
+asb_sp <- asb_sp |> 
+  mutate(quadrant = case_when(
+    morans_I > 0 & expected_I > 0 & p_values < 0.05 ~"High-High",
+    morans_I < 0 & expected_I < 0 & p_values < 0.05 ~"Low-Low",
+    morans_I > 0 & expected_I < 0 & p_values < 0.05 ~"High-Low",
+    morans_I < 0 & expected_I > 0 & p_values < 0.05 ~"Low-High", 
+    .default = "Not Significant"
+  ))
+
+asb_sp$quadrant <- factor(asb_sp$quadrant, levels = c("High-High", "Low-Low", "High-Low", "Low-High", "Not Significant"))
+
+table(asb_sp$quadrant) 
+
+#--Plot the spatial data with color encoding for Local Moran's I
+ggplot() +
+  geom_sf(data = filter(asb_sp, quadrant == "Low-Low"), aes(colour = quadrant), colour = "lightblue")+
+  geom_sf(data = bnt_shp, alpha = 0.1)+
+  coord_sf(xlim = c(bb[1], bb[3]), ylim = c(bb[2], bb[4]))
+
+```
+
+### Generic function for analysing SPAC
+```{r}
+analyse_spac <- function(spatial_points_df, dist) {
+  message("Starting spatial autocorrelation analysis...")
+  
+  # Extract coordinates
+  coords <- st_coordinates(spatial_points_df)
+  
+  message("Calculating critical threshold...")
+  
+  # Find a critical threshold
+  knn1 <- knearneigh(coords)
+  k1 <- knn2nb(knn1)
+  critical_threshold <- max(unlist(nbdists(k1, coords)))
+  
+  message("Calculating distance-band weights...")
+  
+  # Calculate distance-band weights
+  nb_dist_band <- dnearneigh(coords, 0, critical_threshold)
+  
+  message("Creating weight from nb...")
+  
+  # Create weight from nb
+  dist_weight <- nb2listw(nb_dist_band)
+  
+  message("Counting the number of neighboring points...")
+  
+  # Count the number of neighboring points of each crime point
+  counts <- numeric(nrow(spatial_points_df))
+  
+  for (i in seq_along(spatial_points_df)){
+    point <- spatial_points_df[i,]$geometry
+    buffer <- st_buffer(point, dist = units::as_units(dist, "m"))
+    test <- st_intersects(spatial_points_df$geometry, buffer)
+    n <- which(sapply(test, function(x) sum(x) != 0)) |> length()
+    counts[i] <- ifelse(n > 0, n - 1, n)
+  }
+  
+  message("Performing global Moran's I analysis...")
+  
+  # Perform global Moran's I analysis
+  set.seed(1234)
+  
+  moran <- tryCatch({
+    moran.test(counts, listw = dist_weight)
+    
+    
+  }, error = function(e) {
+    message("Error in global Moran's I analysis:", e$message)
+    NULL
+  })
+  
+  if (is.null(moran)) {
+    message("Skipping local Moran's I analysis due to error.")
+    return(NULL)
+  }
+  
+  print(moran)
+  
+  spatial_points_df["moran_i"] <- moran$statistic
+  spatial_points_df["p_value"] <- moran$p.value
+    
+  message("Performing local Moran's I analysis...")
+
+  # Perform local Moran's I analysis
+  local_moran <- tryCatch({
+    spdep::localmoran(counts, dist_weight)
+  }, error = function(e) {
+    message("Error in local Moran's I analysis:", e$message)
+    NULL
+  })
+  
+  if (is.null(local_moran)) {
+    message("Skipping local Moran's I analysis due to error.")
+    return(NULL)
+  }
+  
+  spatial_points_df$morans_I <- local_moran[, 1]
+  spatial_points_df$expected_I <- local_moran[, 2]
+  spatial_points_df$p_values <- local_moran[,5]
+  
+  message("Defining quadrants...")
+  
+  # Define quadrants
+  spatial_points_df <- spatial_points_df |> 
+    mutate(quadrant = case_when(
+      morans_I > 0 & expected_I > 0 & p_values < 0.05 ~ "High-High",
+      morans_I < 0 & expected_I < 0 & p_values < 0.05 ~ "Low-Low",
+      morans_I > 0 & expected_I < 0 & p_values < 0.05 ~ "High-Low",
+      morans_I < 0 & expected_I > 0 & p_values < 0.05 ~ "Low-High", 
+      TRUE ~ "Not Significant"
+    ))
+  
+  message("Converting quadrant to factor...")
+  
+  # Convert quadrant to factor with specified levels
+  spatial_points_df$quadrant <- factor(spatial_points_df$quadrant, levels = c("High-High", "Low-Low", "High-Low", "Low-High", "Not Significant"))
+  
+  message("Spatial autocorrelation analysis completed.")
+  
+  # Return the table of counts for each quadrant
+  return(spatial_points_df)
+}
+```
+
+#### Apply to Crime
+```{r}
+#--Run Autocorrelation analysis
+#crime <- analyse_spac(crime)
+asb <- analyse_spac(asb, 100) #weak positive correlation (p<0.0001, I = 7.59E-3)
+vc <- analyse_spac(vc, 100) #weak positive correlation (p<0.0001, I = 2.07E-3)
+vhc <- analyse_spac(vhc, 100) #no spatial auto-correlation (p=0.608) 
+other <- analyse_spac(other, 100) #no spatial auto-correlation (p=0.628)
+tfp <- analyse_spac(tfp, 100) #no spatial auto-correlation (p=0.166)
+brg <- analyse_spac(brg, 100) #weak positive auto-correlation (p=0.004, I=5.1E-3)
+
+#--Check outputs
+#---Check quadrants
+table(asb$quadrant)
+table(vc$quadrant)
+table(brg$quadrant)
+
+#---Plot the spatial data with color encoding for Local Moran's I
+ggplot() +
+  geom_sf(data = asb, aes(colour = quadrant))+
+  geom_sf(data = bnt_shp, alpha = 0.1)+
+  coord_sf(xlim = c(bb[1], bb[3]), ylim = c(bb[2], bb[4]))
+
+#---Check the cold spots on OSM
+bnt_shp_wgs84 <-st_transform(bnt_shp, crs = 4326) 
+
+leaflet::leaflet(data = st_transform(filter(brg, quadrant == "Low-Low"), 4326)) |> 
+  leaflet::addTiles() |>
+  leaflet::addCircleMarkers(radius = 1, fillOpacity = 0.001) |>
+  leaflet::addPolygons(data = bnt_shp_wgs84, fillOpacity = 0)
+```
+
+
+#### Apply to POI
+```{r}
+#--Run Autocorrelation analysis
+#---Filter out places that are fewer than three to avoid knn error
+poi_bnt_fin_trim <- Filter(function(x) nrow(x) >= 3, poi_bnt_fin)
+
+poi_spac <- list()
+poi_spac <- map(poi_bnt_fin_trim, ~analyse_spac(.x, 100))
+poi_spac[[5]]
+poi_spac_sig <- Filter(function(x) x$p_value[1] < 0.05, poi_spac)
+
+#--Check outputs
+#---Check quadrants
+map(poi_spac_sig, ~table(.x$quadrant))
+
+#---Plot the spatial data with color encoding for Local Moran's I
+ggplot() +
+  geom_sf(data = poi_spac_sig[[10]], aes(colour = quadrant))+
+  geom_sf(data = bnt_shp, alpha = 0.1)+
+  coord_sf(xlim = c(bb[1], bb[3]), ylim = c(bb[2], bb[4]))
+
+#---Check the cold spots on OSM
+bnt_shp_wgs84 <-st_transform(bnt_shp, crs = 4326) 
+
+leaflet::leaflet(data = st_transform(poi_spac_sig[[4]], 4326)) |> 
+  leaflet::addTiles() |>
+  leaflet::addCircleMarkers(radius = 1, fillOpacity = 0.01) |>
+  leaflet::addPolygons(data = bnt_shp_wgs84, fillOpacity = 0)
+```
+
+### Kriging
+
+```{r}
+ct_all[[5]] |> as_Spatial()
+```
