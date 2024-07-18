@@ -1,0 +1,6 @@
+osm_id,name,addr:city,addr:housename,addr:housenumber,addr:parentstreet,addr:place,addr:postcode,addr:street,brand,brand:wikidata,brand:wikipedia,contact:website,fhrs:id,level,official_name,opening_hours,phone,shop,source:addr,toilets,toilets:wheelchair,website,wheelchair,geometry
+1434108776,TK Maxx,,,,,,,,TK Maxx,Q23823668,en:TK Maxx,,,,,,,department_store,,,,,yes,-0.2252424|51.5718899
+2631069472,Marks & Spencer,London,London Designer Outlet,Unit 27-35 Ground floor,,,HA9 0TG,Wembley Park Boulevard,Marks & Spencer,Q714491,,,,,,Mo-Sa 9:00-20:00; Su 10:30-17:00,+44 20 8795 1386,department_store,,,,https://www.marksandspencer.com/stores/wembley-outlet-5279,,-0.2848503|51.5570373
+3200191023,John Lewis,,,,,,,,John Lewis,Q1918981,en:John Lewis & Partners,https://www.johnlewis.com/our-shops/brent-cross,,,John Lewis & Partners,,,department_store,,yes,yes,,yes,-0.2251477|51.575735
+6553257187,Marks & Spencer,London,,,Prince Charles Drive,Brent Cross Shopping Centre,NW4 3FE,,Marks & Spencer,Q714491,en:Marks & Spencer,https://www.marksandspencer.com/stores/brent-cross-shopping-centre-3120,757407,0,,,,department_store,FHRS Open Data,,,,,-0.2230401|51.5760674
+6553257192,Fenwick,,,,,,,,Fenwick,Q5443673,en:Fenwick (department store),,,0,,,,department_store,,,,,,-0.2222417|51.5768203

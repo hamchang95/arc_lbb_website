@@ -1,0 +1,69 @@
+osm_id,name,access,amenity,amperage,authentication:nfc,authentication:none,authentication:phone_call,authentication:short_message,bicycle,brand,brand:wikidata,brand:wikipedia,capacity,car,charging_station:capacity,charging_station:output,colour,covered,description,fee,level,maxstay,motorcar,network,note,opening_hours,operator,operator:website,operator:wikidata,parking:fee,payment:coins,payment:contactless,payment:notes,ref,scooter,socket:chademo,socket:chademo:output,socket:tesla_supercharger,socket:type1,socket:type1_cable,socket:type2,socket:type2:output,socket:type2_combo,socket:type2_combo:output,source,survey:date,tesla:ref,truck,voltage,website,geometry
+2456198840,,,charging_station,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,-0.2232126|51.5717531
+2517244446,,,charging_station,,,,,,,,,,,,2,,,,,,,,,,The two N/S alligned bays either side ore reserved for charging.  N side says 7kW; S side 3kW (maybe kWH).,,,,,,,,,,,,,,,,,,,,survey;Bing 2012,2013-11-01,,,,,-0.2953983|51.5734556
+3280906970,Tesla Supercharger Brent Cross,customers,charging_station,,,,,,no,,,,2,yes,,,,,,,,,,,,24/7,Tesla Motors Inc.,,,,,,,,,,,2,,,,,,,,,brentcrosssupercharger,,,,-0.2236782|51.5775159
+3366599861,Enfield/Cockfosters LU Car Park,,charging_station,32,,,,,,,,,8,,,,,,,,,,,,,,Source London,,,,,,,,,,,,,,,,,,,,,,230,,-0.1489797|51.6520268
+3366599862,Enfield/Westpole Avenue,,charging_station,32,,,,,,,,,,,,,,,,,,,,,,,Source London,,,,,,,,,,,,,,,,,,,,,,230,,-0.1480276|51.6500996
+4130123719,High Barnet Station NCP Car Park,,charging_station,,,,,,,,,,,,,,,,,,,,,,,,Source London,,,,,,,,,,,,4,,6,,,,,,,,,,-0.1930045|51.6495222
+4708127745,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,-0.1560047|51.5812548
+5484774405,Shell Recharge Barnet,,charging_station,,yes,no,no,no,no,,,,1,no,,,,,,,,,,,,,Allego,,,,no,,no,,no,1,,,,,1,,1,,,,,no,,,-0.2538563|51.6427187
+5498310622,,,charging_station,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,-0.2860941|51.5947774
+5528087655,,,charging_station,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,-0.2425757|51.5931164
+5528087656,,,charging_station,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,-0.2418139|51.5928231
+5528087657,,,charging_station,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,-0.2411782|51.5926015
+5528087658,,,charging_station,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,-0.2407257|51.5924478
+5532794924,,,charging_station,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,-0.1360146|51.5623283
+5881510172,,,charging_station,,,,,,,,,,2,,,,,,,,,,,,,,Polar Network,,,,,,,,,,,,,,,,,,,,,,,,-0.1761603|51.6311195
+6042769618,,,charging_station,,,,,,,,,,,,,,,,,,-1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,-0.2592993|51.5927757
+6171542164,,,charging_station,,,,,,,,,,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,-0.2667441|51.5995429
+6231058177,,,charging_station,,,,,,,,,,1,,,,,,,,,,yes,,,,ESB,,,,,,,,,,,,,,,,,,,,,,,,-0.1814058|51.585859
+7006847871,,,charging_station,,,,,,,,,,2,,,,,,,,,,,Pod Point,,,Pod Point,,Q42888154,,,,,Sean-Carl,,,,,,,2,7 kW,,,,,,,,,-0.2665451|51.6602004
+7638164252,,,charging_station,,,,,,,,,,3,,,,,,,yes,,,,,,,Source London,,,,,,,,,,,,,,,,,,,,,,,,-0.1371857|51.5775209
+7638877825,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,-0.1558465|51.5813521
+7640981079,,,charging_station,,,,,,,,,,1,,,,,,,yes,,,,,,,ESB,,,,,,,,,,,,,,,,,,,,,,,,-0.1446325|51.5767721
+8151078404,,,charging_station,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,-0.2528465|51.5984449
+8567419809,,,charging_station,,,,,,,,,,1,,,,,,,,,,,,,,ESB EV Solutions,,,,,,,,,,,,,,,,,,,,,,,,-0.1828305|51.5857847
+9156320655,,,charging_station,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,-0.156824|51.6699101
+9210829217,,,charging_station,,,,,,,,,,1,,,,,,This needs a fuller survey,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,-0.220661|51.5619152
+9254605733,,,charging_station,,,,,,,,,,2,,,,,,,,,,,,,,Pod Point,,Q42888154,,,,,,,,,,,,,,,,,,,,,,-0.2657995|51.6606118
+9464732242,Source London,,charging_station,,,,,,,Source London,Q7565133,en:Source London,2,,,,,,,yes,,,,,,,Source London,,Q7565133,,,,,,,,,,,,,,,,,,,,,,-0.136065|51.571383
+9468401836,,customers,charging_station,,,,,,,,,,3,,,,,,Part of BP petrol  station,,,,,,,,BP,,,,,,,,,,,,,,,,,,,,,,,,-0.1753811|51.600857
+9576551621,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,-0.1454283|51.5951301
+9576551622,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,-0.145426|51.5951039
+9576551623,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,-0.1453258|51.5951073
+9576551624,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,-0.1453281|51.5951336
+9613217050,Source London,,charging_station,,,,,,,Source London,Q7565133,en:Source London,1,,,,,,,,,,,,,,Source London,,Q7565133,,,,,,,,,,,,,,,,,,,,,,-0.138926|51.5570885
+9805375936,,,charging_station,,,,,,,,,,1,,,,,,lamppost with charging socket,,,,,,,,Ubitricity,,Q113699692,,,,,suby1100005693,,,,,,,,,,,,,,,,,-0.1359139|51.5700981
+9848910900,Source London,yes,charging_station,,,,,,,Source London,Q7565133,,2,,,,,,,yes,,,,,,,Source London,,Q7565133,,,,,,,,,,,,,,,,,,,,,,-0.1365489|51.5731247
+9993493855,Pola-Lyla,,charging_station,,,,,,,,,,2,,,,white,no,,yes,,,,,,,Pod Point,https://pod-point.com,Q42888154,no,,yes,,,,1,50 kW,,,,,,1,50 kW,,,,,,https://charge.pod-point.com/address/friern-bridge-retail-park-l578y/duke-vern,-0.1443452|51.6109903
+9993493856,Duke-Vern,,charging_station,,,,,,,,,,2,,,,,no,,yes,,,,,,,Pod Point,https://pod-point.com,Q42888154,no,,,,PG-86096,,,,,,,2,7 kW,,,,,,,,https://charge.pod-point.com/address/friern-bridge-retail-park-l578y/duke-vern,-0.1443236|51.6109734
+9993493857,Luca-Rory,,charging_station,,,,,,,,,,2,,,,,no,,yes,,,,,,,Pod Point,https://pod-point.com,Q42888154,no,,,,PG-86090,,,,,,,2,7 kW,,,,,,,,https://charge.pod-point.com/address/friern-bridge-retail-park-l578y/luca-rory,-0.1442805|51.6109397
+10012417897,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,-0.1557654|51.5813215
+10012417898,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,-0.1559475|51.581214
+10180479476,,,charging_station,,,,,,,,,,1,,,,,,,,,,,,,,Ubitricity,,Q113699692,,,,,,,,,,,,,,,,,,,,,,-0.1356369|51.5701531
+10180479477,,,charging_station,,,,,,,,,,1,,,,,,,,,,,,,,Ubitricity,,Q113699692,,,,,,,,,,,,,,,,,,,,,,-0.1353111|51.5705616
+10180479478,,,charging_station,,,,,,,,,,1,,,,,,,,,,,,,,Ubitricity,,Q113699692,,,,,,,,,,,,,,,,,,,,,,-0.1350267|51.5705841
+10184258894,,,charging_station,,,,,,,,,,1,,,,,,,yes,,,,,,24/7,Source London,,Q7565133,,,,,,,,,,,1,1,,,,,,,,,https://www.sourcelondon.net/request-charge/qrcode?evseId=GB*BPL*E000663,-0.1439887|51.5898306
+10184258895,,,charging_station,,,,,,,,,,1,,,,,,,yes,,,,,,24/7,Source London,,Q7565133,,,,,,,,,,,1,1,,,,,,,,,https://www.sourcelondon.net/request-charge/qrcode?evseId=GB*BPL*E000664,-0.1439326|51.5897983
+10184258896,,,charging_station,,,,,,,,,,1,,,,,,,yes,,,,,,24/7,Source London,,Q7565133,,,,,,,,,,,1,1,,,,,,,,,https://www.sourcelondon.net/request-charge/qrcode?evseId=GB*BPL*E000662,-0.1440448|51.5898629
+10203712576,,,charging_station,,,,,,,,,,,,,,,,,yes,,,,,,24/7,Source London,,Q7565133,,,,,,,,,,,,2,22 kW,,,,,,,,https://www.sourcelondon.net/request-charge/qrcode?evseId=GB*BPL*S001773,-0.1434858|51.5914617
+10203756247,,,charging_station,,,,,,,,,,2,,,,,,,yes,,,,,,,BP Pulse,https://www.bppulse.co.uk,Q39057719,,,,,11933,,,,,,,2,7.2 kW,,,,,,,,,-0.1471302|51.5906443
+10218488471,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,-0.1422648|51.5899865
+10218488472,,,charging_station,,,,,,,,,,1,,,3 kW,,,,yes,,4 hours,,,,,EDF,,,,,,,200 20261,,,,,,,,,,,,,,,,,-0.1422548|51.590051
+10218488473,,,charging_station,,,,,,,,,,1,,,3 kW,,,,yes,,4 hours,,,,,EDF,,,,,,,200 20262,,,,,,,,,,,,,,,,,-0.1422829|51.5900645
+10221254296,,,charging_station,,,,,,,,,,2,,,,,,,yes,,,,,,,Source London,,Q7565133,,,,,,,,,,,,2,7 kW,,,,,,,,https://www.sourcelondon.net/request-charge/qrcode?evseId=GB*BPL*S001770,-0.1530147|51.5908576
+10235854296,,,charging_station,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,-0.1498236|51.5645775
+10574252650,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,-0.1422128|51.5900282
+10574252651,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,-0.1421284|51.5899876
+10574252652,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,-0.1421805|51.5899459
+10940265115,,,charging_station,,,,,,,,,,1,,,,,,,yes,,,,,,,Ubitricity,,Q113699692,,,,,,,,,,,,,,,,,,,,,,-0.1711665|51.6108074
+11234714623,,,charging_station,,,,,,,Source London,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,-0.1369295|51.568348
+11514028679,,,charging_station,,,,,,,,,,2,,,,,,,,,,,,,,Pod Point,,,,,,,,,,,,,,,,,,,,,,,,-0.2472511|51.5937884
+11514028680,,,charging_station,,,,,,,,,,2,,,,,,,,,,,,,,Pod Point,,,,,,,,,,,,,,,,,,,,,,,,-0.2471025|51.5937201
+11514028683,,,charging_station,,,,,,,,,,2,,,,,,,,,,,,,,Pod Point,,,,,,,,,,,,,,,,,,,,,,,,-0.2462629|51.5932446
+11514028684,,,charging_station,,,,,,,,,,2,,,,,,,,,,,,,,Pod Point,,,,,,,,,,,,,,,,,,,,,,,,-0.2461646|51.5931691
+11690909270,,,charging_station,,,,,,,BP Pulse,Q39057719,,50,,,,,,,,,,,,,,BP Pulse,,Q39057719,,,,,24131,,,,,,,,,,,,,,,,,-0.1852746|51.6181623
+11737267830,,,charging_station,,,,,,,,,,2,,,,,,,,,,,Charge Assist,,,Drax Electric Vehicles,,,,,,,DRAX00223-1;DRAX00223-2,,,,,,,2,22.1 kW,,,,,,,,,-0.2663018|51.6600448
+11737267856,,,charging_station,,,,,,,,,,2,,,,,,,,,,,,,,InstaVolt,,,,,,,,,,,,,,,,,,,,,,,,-0.2713732|51.6581583
+11737267857,,,charging_station,,,,,,,,,,2,,,,,,,,,,,,,,InstaVolt,,,,,,,,,,,,,,,,,,,,,,,,-0.27141|51.6581621
+11739514754,,,charging_station,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,-0.1572966|51.5759951

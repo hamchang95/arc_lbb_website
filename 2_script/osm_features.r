@@ -6,7 +6,7 @@
 options(timeout = 120)
 
 #--Install / load packages
-pacman::p_load(sf, magrittr, jsonlite, here, tmap, osmdata, tidyverse, data.table, rmapshaper, xml2, rvest, mapview, rio)
+pacman::p_load(sf, here, magrittr, jsonlite, here, tmap, osmdata, tidyverse, data.table, rmapshaper, xml2, rvest, mapview, rio)
 
 #--Get Barnet polygon
 bnt_bb <- getbb("London Borough of Barnet", format_out = "polygon")
@@ -40,7 +40,7 @@ ggplot(bnt_poly) +
 
 
 #--Get list of features with values on OSM
-dict <- import_list(here("0_ref", "places.xlsx")) 
+dict <- import_list(here("arc_lbb_website", "0_ref", "places.xlsx")) 
 #dict[["office"]] <- osmdata::available_tags("office") |>
 #mutate(Description = NA, Use = NA)
 

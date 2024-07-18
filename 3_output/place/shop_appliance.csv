@@ -1,0 +1,5 @@
+osm_id,name,addr:city,addr:housenumber,addr:postcode,addr:street,shop,source:addr:postcode,survey:date,website,geometry
+7813223045,A. J. L. Domestic Appliances,,,,,appliance,,,,-0.1538984|51.5908625
+10293798320,Garland,,,,,appliance,,,,-0.1769225|51.6147623
+10678907301,Glotech,London,,,High Road,appliance,,,https://www.glotech.co.uk,-0.1754387|51.6117404
+11739121022,Best 'in' Kitchens Limited,Borehamwood,8,WD6 1DL,Shenley Road,appliance,code-point_open,2024-03-15,,-0.2790155|51.6540387

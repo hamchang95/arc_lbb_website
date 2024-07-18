@@ -4,7 +4,7 @@
     "href": "index.html",
     "title": "ARC-LBB",
     "section": "",
-    "text": "This is a website for ARC-LBB (Assessing the Risk of Crime in London Borough of Barnet) project, which was completed in part of the Data Science Accelerator programme by Office for National Statistics.\n\n\n\n\n\n\n“Cognitivie behaviour therapy (CBT) for individuals to prevent crimes has shown to be less effective in countries with higher level of socioeconomic inequality like UK compared to countries with lesser inequality like Canada.” - Crime Surveys User Conference (2024)"
+    "text": "This is a website for ARC-LBB (Assessing the Risk of Crime in London Borough of Barnet) project, which was completed in part of the Data Science Accelerator programme by Office for National Statistics.\n\n\n\n\n\n\n“Cognitivie behaviour therapy (CBT) for individuals to prevent crimes has shown to be less effective in countries with higher level of socioeconomic inequality like UK compared to countries with lesser inequality like Canada.” - Crime Surveys User Conference (2024)\n\n\n\nARC-LBB project started with a question of how much can structural elements contribute to criminal incidence. Although crime at individual level appears to be an outcome of personal behaviour, identifying environmental factors can help inform the risk of crime at population level, akin to structural determinants in population health.\nSimilar efforts have been recognised in crime analytics. Metropolitan Police has started to investigate Risk Terrain Modelling, which aims to identify geographical factors that correlate to specific crime type of interest (Metropolitan Police 2023). Several works have been ongoing in the academia as well (Cichosz 2020, Shah et al 2021, Yunus & Loo 2023)."
   },
   {
     "objectID": "about.html",
@@ -46,6 +46,97 @@
     "href": "limitation.html",
     "title": "Limitation",
     "section": "",
-    "text": "Data Quality\n\nPatrol\nTendency to be more crimes near police station"
+    "text": "Data Quality\n\nBiased patterns in patrol\nTendency to be more crimes near police station"
+  },
+  {
+    "objectID": "kriging.html",
+    "href": "kriging.html",
+    "title": "Kriging",
+    "section": "",
+    "text": "Kriging is an intriguing model for spatial interpolation. We can estimate the number of crimes with a limited set of data points we have by using kriging. Kriging essentially models the spatial relationship between points and penalises points that are farther away from each other, giving less weight, as shown in the equation below.1\n\n\\hat Z(S_0) = \\Sigma_{i = 1}^{N}\\lambda_iZ(S_i)\n where\n\nZ(S_i) = the measured value at the ith location\n\\lambda_i = weight for the measured value at the ith location\ns_0 = the prediction location\nN = the number of measured values\n\nUnlike simpler methods, such as Inverse Distance Weighted Interpolation or Linear Regression, kriging interpolates based on the spatial distribution of empirical observations, that being the data points we have, instead of assuming a theoretical distribution. The interpolation ultimately results in a map of prediction surface.\nKrigining analysis is broadly in three parts.\n\nPre-process data\nCreate variogram\nMake a prediction\n\n\n\n\nVariogram, also known as semi-variogram, is a diagram of semi-variance, which is a half of mean squared difference in the values of paired locations. At distance h between location i and location j, Semivariogram(distance_h) = 0.5 * average(value_i - value_j)^2). For each pair of points, semi-variance is plotted against distance between points. Hence, variogram shows the covariance between each pair of points.\n\n\n\n\n\nAfter building variogram, distribution that best fits the variogram is selected, as shown below. While it is possible to specify a distribution of interest. it is also possible for a software to choose the best-fit model. Kriging then uses the fitted variogram values to make predictions at unsampled locations."
+  },
+  {
+    "objectID": "kriging.html#introduction",
+    "href": "kriging.html#introduction",
+    "title": "Kriging",
+    "section": "",
+    "text": "Kriging is an intriguing model for spatial interpolation. We can estimate the number of crimes with a limited set of data points we have by using kriging. Kriging essentially models the spatial relationship between points and penalises points that are farther away from each other, giving less weight, as shown in the equation below.1\n\n\\hat Z(S_0) = \\Sigma_{i = 1}^{N}\\lambda_iZ(S_i)\n where\n\nZ(S_i) = the measured value at the ith location\n\\lambda_i = weight for the measured value at the ith location\ns_0 = the prediction location\nN = the number of measured values\n\nUnlike simpler methods, such as Inverse Distance Weighted Interpolation or Linear Regression, kriging interpolates based on the spatial distribution of empirical observations, that being the data points we have, instead of assuming a theoretical distribution. The interpolation ultimately results in a map of prediction surface.\nKrigining analysis is broadly in three parts.\n\nPre-process data\nCreate variogram\nMake a prediction\n\n\n\n\nVariogram, also known as semi-variogram, is a diagram of semi-variance, which is a half of mean squared difference in the values of paired locations. At distance h between location i and location j, Semivariogram(distance_h) = 0.5 * average(value_i - value_j)^2). For each pair of points, semi-variance is plotted against distance between points. Hence, variogram shows the covariance between each pair of points.\n\n\n\n\n\nAfter building variogram, distribution that best fits the variogram is selected, as shown below. While it is possible to specify a distribution of interest. it is also possible for a software to choose the best-fit model. Kriging then uses the fitted variogram values to make predictions at unsampled locations."
+  },
+  {
+    "objectID": "kriging.html#pre-process-data",
+    "href": "kriging.html#pre-process-data",
+    "title": "Kriging",
+    "section": "Pre-Process Data",
+    "text": "Pre-Process Data\n\nSet Up\nASB (anti-social behaviour) has shown a positive auto-correlation. Therefore, we will continue working on ASB.\n\n\nCode\n#--Install / load packages\npacman::p_load(sp, sf, data.table, rio, here, leaflet, gstat, tidyverse, Metrics, scales, corrr, ggcorrplot, FactoMineR, factoextra, corrplot)\n\n#--Import street-level asb data\nasb &lt;- import(here(\"3_output\", \"asb_with_nearest_distances.csv\"))\n\n#--Calculate count of crimes per location coordinate\nasb_count &lt;- asb |&gt; \n    group_by(location.latitude, location.longitude) |&gt;\n    count() |&gt; \n    ungroup() |&gt; \n    inner_join(asb, by = c('location.latitude', 'location.longitude')) |&gt; \n    distinct(location.latitude, location.longitude, .keep_all = TRUE) |&gt;\n    group_by(location.latitude, location.longitude) |&gt;\n    mutate(location_id = cur_group_id()) |&gt;\n    ungroup()\n\n#--Rename columns \nnames(asb_count)[grepl('longitude', names(asb_count))] &lt;- 'x' \nnames(asb_count)[grepl('latitude', names(asb_count))] &lt;- 'y' \n\n#--Convert dataframe to sf object and reproject to OSGB36\nasb_count_sf &lt;- asb_count |&gt; \n    st_as_sf(coords = c('x', 'y'), crs = 4326) \n\n#--Get coordinates\nasb_count_sf &lt;- asb_count_sf |&gt;\n    mutate(x = st_coordinates(asb_count_sf)[, 1],\n           y = st_coordinates(asb_count_sf)[, 2])\n\n#--Change the sf back to df\nasb_count &lt;- st_drop_geometry(asb_count_sf)\n\n\nThe very first step of kriging analysis is to pre-proecess the data into a count data by location pairs. At every unique coordinate of longitude and latitude (or x and y), the number of anti-social behaviour (ASB) was counted.\n\n\nSplit Data into Test & Train Sets\n\n\nCode\n#--Create random indices\ntotal_rows &lt;- nrow(asb_count)\nsample_size &lt;- round(total_rows * 0.75)\n\nset.seed(1234) # for reproducibility\nrandom_indices &lt;- sample(1:total_rows, sample_size, replace = FALSE)\n\n#--Create the test set using the random indices\ntrain_asb &lt;- asb_count |&gt; filter(location_id %in% random_indices)\n\n# Create the training set by excluding the indices used for the test set\ntest_asb &lt;-  asb_count |&gt; filter(!location_id %in% random_indices)\n\n# Convert train and test sets to sp objects\ncoordinates(train_asb) &lt;- c(\"x\", \"y\")\nproj4string(train_asb) &lt;- CRS(\"+proj=longlat +datum=WGS84\")\ncoordinates(test_asb) &lt;- c(\"x\", \"y\")\nproj4string(test_asb) &lt;- CRS(\"+proj=longlat +datum=WGS84\")\n\n\nThe count of ASB data at each unique location was randomly split into test and train sets at a ratio of 75% and 25% in order to evaluate the kriging model."
+  },
+  {
+    "objectID": "kriging.html#create-variogram",
+    "href": "kriging.html#create-variogram",
+    "title": "Kriging",
+    "section": "Create Variogram",
+    "text": "Create Variogram\n\n\nCode\n#--Create variogram\nvgm &lt;- variogram(log(n) ~ x + y, train_asb, width=0.1)\n\n#--Create the fitted curve line\nfit &lt;- fit.variogram(vgm, vgm(c(\"Gau\", \"Sph\", \"Mat\", \"Exp\")), fit.kappa = TRUE)\n\n#--Plot the curve function\nplot(vgm, main = \"Variogram\")\n\n\n\n\n\n\n\n\n\nCode\nplot(fit, main = \"Variogram Model Fit\", cutoff = max(vgm$dist))\n\n\n\n\n\n\n\n\n\nCode\n # When the curve plateaus, the point pairs are no longer spatially correlated"
+  },
+  {
+    "objectID": "kriging.html#create-grid",
+    "href": "kriging.html#create-grid",
+    "title": "Kriging",
+    "section": "Create Grid",
+    "text": "Create Grid\nWe need to create a surface onto which kriging model can make prediction. In other words, we need all possible points within the boundary of Barnet, which we can achieve by creating very small grid cells of equal size and extract their centroid points.\n\n\nCode\n#--Import Barnet shapefile\nbnt_shp &lt;- sf::st_read(here(\"1_data\", \"9_geo\", \"bnt_lad.json\"), crs = 4326) |&gt; \n    st_make_valid() |&gt;\n    st_transform(27700) # reprojects onto British National Grid, of which the unit is meter\n#&gt; Reading layer `OS - BoundaryLine - 2022Authorities - Barnet' from data source \n#&gt;   `C:\\Users\\Hannah.Chang\\OneDrive - London Borough of Barnet\\General - I&I Hub\\02. Project Documentation\\07. Standard Projects\\ARC_LBB Website\\arc_lbb_website\\1_data\\9_geo\\bnt_lad.json' \n#&gt;   using driver `TopoJSON'\n#&gt; Simple feature collection with 1 feature and 17 fields\n#&gt; Geometry type: POLYGON\n#&gt; Dimension:     XY\n#&gt; Bounding box:  xmin: -0.3055738 ymin: 51.55528 xmax: -0.1291338 ymax: 51.67021\n#&gt; Geodetic CRS:  WGS 84\n\n#--Make grid of 100m x 100m\ngrid &lt;- bnt_shp |&gt; \n    st_make_grid(cellsize = units::as_units(100, \"m\"), what = \"centers\") |&gt;\n    st_as_sf(crs = 27700)\n\n#--Filter grid points to include only those within the Barnet polygon\nresult &lt;- st_within(grid, bnt_shp) |&gt;\n    as.data.frame()\n\ngrid_bnt &lt;- grid |&gt; \n    mutate(row.id = 1:nrow(grid)) |&gt; \n    left_join(result) |&gt; \n    filter(!is.na(col.id))\n\n#--Reproject to WGS84\ngrid_bnt_wgs84 &lt;- grid_bnt |&gt;\n    st_transform(4326) |&gt;\n    rename(geometry = x)\n\n#--Add longtidue and latitude \ngrid_bnt_wgs84 &lt;- grid_bnt_wgs84 |&gt;\n    mutate(x = st_coordinates(grid_bnt_wgs84)[, 1],\n           y = st_coordinates(grid_bnt_wgs84)[, 2]) \n\n#--Check\nggplot() +\n    geom_sf(data = grid_bnt, alpha = 0.3, colour = \"#00AFA9\") +\n    geom_sf(data = bnt_shp, alpha = 0, lwd = 2, colour = \"black\") +\n    ggtitle(\"All the points in the grids within Barnet boundary\") +\n    theme_minimal()\n\n\n\n\n\n\n\n\n\n\n\nCode\n#--Define components of kriging model\npredictors &lt;- c(\"x\", \"y\")\nformula_string &lt;- paste(\"log(n)\", \"~\", paste(predictors, collapse = \" + \"))\nkrige_formula &lt;- as.formula(formula_string)\n\n# Perform kriging over the grid\nkriged_result_grid &lt;- krige(\n    formula = krige_formula,\n    locations = train_asb,\n    newdata = grid_bnt_wgs84,\n    model = fit,\n    maxdist = 10,\n    nmax = 50\n  ) \n#&gt; [using universal kriging]\n\n# Perform kriging over the test set\nkriged_result_test &lt;- krige(\n    formula = krige_formula,\n    locations = train_asb,\n    newdata = test_asb,\n    model = fit,\n    maxdist = 10,\n    nmax = 50\n  ) |&gt;\n   st_as_sf()\n#&gt; [using universal kriging]\n\n# Retrieve interpolated values for the grid\ngrid_fin &lt;- grid_bnt_wgs84 |&gt;\n    select(-contains(\"id\")) |&gt;\n    mutate(\n        krige_pred = exp(kriged_result_grid$var1.pred),\n        krige_var = exp(kriged_result_grid$var1.var)\n    ) |&gt;\n    mutate(\n        krige_pred_per_yr = krige_pred / 3\n    ) # dividing by 3 because the data spanned over 3 years\n\n# Visualise on static map\nggplot() +\n  geom_sf(data = grid_fin, aes(colour = krige_pred_per_yr)) +\n  scale_colour_gradient(low = \"green\", high = \"red\", name = \"Predicted Value\") +\n   geom_sf(data = bnt_shp, alpha = 0, lwd = 1.5, colour = \"black\") +\n  ggtitle(\"Hotspot Map for Anti-Social Behaviour Predicted by Kriging Model\") +\n  theme_minimal()\n\n\n\n\n\n\n\n\n\nCode\n\n# Visualise on interactive map\npal_asb &lt;- leaflet::colorNumeric(palette = 'RdYlGn', grid_fin$krige_pred_per_yr, rev = TRUE)\n\ngrid_fin$krige_popup &lt;- paste0(\"Predicted Number of ASB: \", as.character(round(grid_fin$krige_pred_per_yr, 0))) \n\nleaflet::leaflet(data = grid_fin) |&gt;\n    leaflet::addTiles() |&gt; \n    leaflet::addPolygons(\n        data = st_transform(bnt_shp, 4326),\n        fillOpacity = 0,\n        col = \"black\",\n        opacity = 0.8) |&gt;\n    leaflet::addCircles(\n    data = grid_fin,\n    color = ~pal_asb(krige_pred_per_yr),\n    popup = ~krige_popup,\n    radius = 10, # Adjust radius as needed\n    stroke = TRUE,\n    fillOpacity = 0.5\n  )  |&gt;\n  addLegend('bottomright',\n            pal =pal_asb,\n            values = ~krige_pred_per_yr,\n            title = 'Predicted Count of ASB',\n            opacity = 1)\n\n\n\n\n\n\nCode\n\n# Retrieve interpolated values for the test set\nvalidation &lt;- test_asb |&gt;\n    st_as_sf() |&gt;\n    select(n) |&gt;\n    mutate(\n        krige_pred = exp(kriged_result_test$var1.pred),\n        krige_var = exp(kriged_result_test$var1.var)\n    )\n\nvalidation |&gt; str()\n#&gt; sf [871 × 4] (S3: sf/tbl_df/tbl/data.frame)\n#&gt;  $ n         : int [1:871] 7 65 33 9 17 2 4 7 2 1 ...\n#&gt;  $ geometry  :sfc_POINT of length 871; first list element:  'XY' num [1:2] -0.213 51.556\n#&gt;  $ krige_pred: num [1:871] 9.25 6.4 7.57 6.35 7 ...\n#&gt;  $ krige_var : num [1:871] 2.72 2.64 2.79 2.57 2.45 ...\n#&gt;  - attr(*, \"sf_column\")= chr \"geometry\"\n#&gt;  - attr(*, \"agr\")= Factor w/ 3 levels \"constant\",\"aggregate\",..: NA NA NA\n#&gt;   ..- attr(*, \"names\")= chr [1:3] \"n\" \"krige_pred\" \"krige_var\"\nMetrics::rmse(actual = validation$n, predicted = validation$krige_pred)\n#&gt; [1] 11.93958"
+  },
+  {
+    "objectID": "kriging.html#footnotes",
+    "href": "kriging.html#footnotes",
+    "title": "Kriging",
+    "section": "Footnotes",
+    "text": "Footnotes\n\n\nArcGIS - How Kriging works: https://pro.arcgis.com/en/pro-app/latest/tool-reference/3d-analyst/how-kriging-works.htm↩︎"
+  },
+  {
+    "objectID": "2_script/pca_test_train_ex.html",
+    "href": "2_script/pca_test_train_ex.html",
+    "title": "ARC-LBB",
+    "section": "",
+    "text": "import numpy as np\nfrom sklearn.decomposition import PCA\nfrom sklearn.preprocessing import StandardScaler\nfrom sklearn.model_selection import train_test_split\nfrom sklearn.datasets import load_iris\n\n\n# Load iris dataset as an example\niris = load_iris()\nX = iris.data\ny = iris.target\n\n\n# Split the dataset into training and testing sets\nX_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)\n\n\n# Standardize the data (important for PCA)\nscaler = StandardScaler()\nX_train_std = scaler.fit_transform(X_train)\nX_test_std = scaler.transform(X_test)\n\n\n# Apply PCA\npca = PCA()\nX_train_pca = pca.fit_transform(X_train_std)\n\n\n# Calculate the cumulative explained variance\ncumulative_variance_ratio = np.cumsum(pca.explained_variance_ratio_)\n\ncumulative_variance_ratio\n\narray([0.72551423, 0.95552345, 0.99513118, 1.        ])\n\n\n\n# Determine the number of components to keep for 85% variance explained\nn_components = np.argmax(cumulative_variance_ratio &gt;= 0.85) + 1\n\n\n# Apply PCA with the selected number of components\npca = PCA(n_components=n_components)\nX_train_pca = pca.fit_transform(X_train_std)\nX_test_pca = pca.transform(X_test_std)\n\n\n# Display the results\nprint(\"Original Training Data Shape:\", X_train.shape)\nprint(\"Reduced Training Data Shape (PCA):\", X_train_pca.shape)\nprint(\"Number of Components Selected:\", n_components)\n\nOriginal Training Data Shape: (120, 4)\nReduced Training Data Shape (PCA): (120, 2)\nNumber of Components Selected: 2"
+  },
+  {
+    "objectID": "0_ref/ref_for_lisa.html",
+    "href": "0_ref/ref_for_lisa.html",
+    "title": "ARC-LBB",
+    "section": "",
+    "text": "https://crd230.github.io/lab7.html"
+  },
+  {
+    "objectID": "0_ref/osm_amenity_list.html",
+    "href": "0_ref/osm_amenity_list.html",
+    "title": "ARC-LBB",
+    "section": "",
+    "text": "List of values for the amenity key in OpenStreetMap:\n\nSustenance\n\nbar\nbiergarten\ncafe\nfast_food\nfood_court\nice_cream\npub\nrestaurant\n\n\n\nEducation\n\ncollege\ndancing_school\ndriving_school\nfirst_aid_school\nkindergarten\nlanguage_school\nlibrary\nsurf_school\ntoy_library\nresearch_institute\ntraining\nmusic_school\nschool\ntraffic_park\nuniversity\n\n\n\nTransportation\n\nbicycle_parking\nbicycle_repair_station\nbicycle_rental\nbicycle_wash\nboat_rental\nboat_sharing\nbus_station\ncar_rental\ncar_sharing\ncar_wash\ncompressed_air\nvehicle_inspection\ncharging_station\ndriver_training\nferry_terminal\nfuel\ngrit_bin\nmotorcycle_parking\nparking\nparking_entrance\nparking_space\ntaxi\nweighbridge\n\n\n\nFinancial\n\natm\npayment_terminal\nbank\nbureau_de_change\nmoney_transfer\npayment_centre\n\n\n\nHealthcare\n\nbaby_hatch\nclinic\ndentist\ndoctors\nhospital\nnursing_home\npharmacy\nsocial_facility\nveterinary\n\n\n\nEntertainment, Arts & Culture\n\narts_centre\nbrothel\ncasino\ncinema\ncommunity_centre\nconference_centre\nevents_venue\nexhibition_centre\nfountain\ngambling\nlove_hotel\nmusic_venue\nnightclub\nplanetarium\npublic_bookcase\nsocial_centre\nstage\nstripclub\nstudio\nswingerclub\ntheatre\n\n\n\nPublic Service\n\ncourthouse\nfire_station\npolice\npost_box\npost_depot\npost_office\nprison\nranger_station\ntownhall\n\n\n\nFacilities\n\nbbq\nbench\ndog_toilet\ndressing_room\ndrinking_water\ngive_box\nmailroom\nparcel_locker\nshelter\nshower\ntelephone\ntoilets\nwater_point\nwatering_place\n\n\n\nWaste Management\n\nsanitary_dump_station\nrecycling\nwaste_basket\nwaste_disposal\nwaste_transfer_station\n\n\n\nOthers\n\nanimal_boarding\nanimal_breeding\nanimal_shelter\nanimal_training\nbaking_oven\nclock\ncrematorium\ndive_centre\nfuneral_hall\ngrave_yard\nhunting_stand\ninternet_cafe\nkitchen\nkneipp_water_cure\nlounger\nmarketplace\nmonastery\nmortuary\nphoto_booth\nplace_of_mourning\nplace_of_worship\npublic_bath\npublic_building\nrefugee_site\nvending_machine\nuser_defined"
+  },
+  {
+    "objectID": "2_script/crime_eda.html#crime-by-frequency",
+    "href": "2_script/crime_eda.html#crime-by-frequency",
+    "title": "Crime EDA",
+    "section": "Crime by Frequency",
+    "text": "Crime by Frequency\n\nMost Prevalent Crimes in Barnet All-Time\n\nAnti-social behaviour, violent crime, other theft, vehicle crime, and theft from the person were the five most prevalent crimes.\n\n\n\nMost Prevalent Crime in Barnet in the Last 12 Months\nInterestingly, in the last 12 months, the number of violent crimes exceeded that of anti-social behaviour. They were followed by vehicle crime, other theft and burglary."
+  },
+  {
+    "objectID": "2_script/crime_eda.html#source-places",
+    "href": "2_script/crime_eda.html#source-places",
+    "title": "Crime EDA",
+    "section": "Source Places",
+    "text": "Source Places"
+  },
+  {
+    "objectID": "2_script/crime_eda.html#count-the-number-of-crimes-and-places-within-each-grid",
+    "href": "2_script/crime_eda.html#count-the-number-of-crimes-and-places-within-each-grid",
+    "title": "Crime EDA",
+    "section": "Count the Number of Crimes and Places within Each Grid",
+    "text": "Count the Number of Crimes and Places within Each Grid\n\nCreate Grid\nUnless specified otherwise, cellsize in st_make_grid() is c(diff(st_bbox(x)[c(1, 3)]), diff(st_bbox(x)[c(2, 4)]))/n, where n = c(10, 10).\n\n\nSelect necessary columns\n\n\nCount the Number"
+  },
+  {
+    "objectID": "2_script/crime_eda.html#spatial-autocorrelation",
+    "href": "2_script/crime_eda.html#spatial-autocorrelation",
+    "title": "Crime EDA",
+    "section": "Spatial Autocorrelation",
+    "text": "Spatial Autocorrelation\n\nSubset Crime Data\n\n\nCreate Distance-Based Weight\n\n\nCount the Number of Neighbouring Points of Each Crime Point\n\n\nGlobal Autocorrelation Test\n\n\nLocal Autocorrelation Test\n\n\nGeneric function for analysing SPAC\n\nApply to Crime\n\n\nApply to POI\n\n\n\nKriging"
   }
 ]

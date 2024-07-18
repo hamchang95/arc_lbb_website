@@ -1,0 +1,15 @@
+osm_id,name,addr:city,addr:country,addr:housename,addr:housenumber,addr:postcode,addr:street,brand,brand:wikidata,entrance,level,phone,shop,source,source:addr:postcode,survey:date,toilets:wheelchair,website,wheelchair,geometry
+846591087,,,,,,,,,,,,,,,,,,,,-0.1374146|51.5609046
+846591111,,,,,,,,,,,,,,,,,,,,-0.1372122|51.5609182
+846591179,,,,,,,,,,,,,,,,,,,,-0.1372363|51.5608701
+846591258,,,,,,,,,,,,,,,,,,,,-0.1373905|51.5609527
+1687075788,,,,,,,,,,,,,,,,,,,,-0.1774677|51.5559444
+2094002580,,,,,,,,,,,,,,,,,,,,-0.1775529|51.5558562
+2094002584,,,,,,,,,,,,,,,,,,,,-0.1775872|51.5558854
+2094002589,,,,,,,,,,,,,,,,,,,,-0.1774286|51.5559224
+2096222275,,,,,,,,,,main,,,,photograph,,,,,,-0.1774364|51.5559268
+2406756194,Richards Travel,Wembley,GB,,229,,Preston Road,,,,,+44 20 8904 5235,travel_agency,survey;Bing 2012,,2013-08-02,no,,limited,-0.2949507|51.5713221
+9579256292,National Express,,,,,,,,,,0,,travel_agency,,,,,,,-0.1957074|51.5716552
+10774395783,Jetline Holidays,,,Jetline House,,,,,,,,,travel_agency,,,,,,,-0.1968433|51.651091
+11737267849,Alan Cook Travel,Borehamwood,,,11,WD6 1AD,Shenley Road,,,,,,travel_agency,,,,,https://www.alancooktravel.com/,,-0.2788773|51.6544148
+11739120987,TUI,Borehamwood,,,,WD6 1AH,Shenley Road,TUI,Q7795876,,,,travel_agency,,code-point_open,2024-03-15,,https://www.tui.co.uk/shop-finder/tui-holiday-store-153-shenley-road-borehamwood,,-0.2739112|51.6569283

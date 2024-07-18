@@ -1,0 +1,6 @@
+osm_id,name,addr:city,addr:housename,addr:housenumber,addr:postcode,addr:street,brand,brand:wikidata,brand:wikipedia,level,opening_hours,phone,shop,website,geometry
+2629967072,Crabtree & Evelyn,London,London Designer Outlet,"Unit 87, Floor 1",HA9 0TG,Wembley park boulevard,,,,1,Mo-Sa 9:00-20:00; Su 11:00-17:00,,cosmetics,http://www.london-designer-outlet.com/brand-directory/crabtree-evelyn,-0.2837572|51.5566863
+2631291071,The Body Shop,London,London Designer Outlet,"Unit 54, First Floor",HA9 0FD,Wembley Park Boulevard,The Body Shop,Q837851,,1,Mo-Sa 9:00-20:00; Su 11:00-17:00,+44 20 8902 1048,cosmetics,http://www.london-designer-outlet.com/brand-directory/the-body-shop,-0.2838424|51.5562708
+5204316625,,,,48,,Glengall Road,,,,,,,cosmetics,,-0.2688778|51.6262947
+6553257188,The Body Shop,,,,,,The Body Shop,Q837851,en:The Body Shop,0,,,cosmetics,,-0.2229635|51.5763486
+6553257196,Lush,,,,,,Lush,Q1585448,en:Lush (company),1,,,cosmetics,,-0.2243236|51.5763861

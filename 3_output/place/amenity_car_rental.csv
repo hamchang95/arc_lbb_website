@@ -1,0 +1,11 @@
+osm_id,name,addr:city,addr:housenumber,addr:postcode,addr:street,amenity,brand,brand:wikidata,brand:wikipedia,official_name,geometry
+1063668527,Europcar,London,979,N12 8QR,High Road,car_rental,Europcar,Q1376256,en:Europcar,,-0.1769587|51.6217681
+3319203482,,,,,,,,,,,-0.2949209|51.6075786
+3319203484,,,,,,,,,,,-0.2948049|51.6075819
+3319203489,,,,,,,,,,,-0.2947944|51.6075894
+3319203491,,,,,,,,,,,-0.2949365|51.6075943
+3319203499,,,,,,,,,,,-0.2947963|51.60761
+3319203503,,,,,,,,,,,-0.2948119|51.6076197
+3319203508,,,,,,,,,,,-0.2949424|51.6076499
+3319203511,,,,,,,,,,,-0.2948139|51.6076535
+6668636558,Enterprise,London,975,N12 8QR,High Road,car_rental,Enterprise,Q17085454,en:Enterprise Rent-A-Car,Enterprise Rent-A-Car,-0.1769612|51.6215674

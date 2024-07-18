@@ -1,0 +1,13 @@
+osm_id,name,addr:city,addr:housenumber,addr:postcode,addr:street,amenity,check_date,contact:email,contact:instagram,contact:twitter,currency:GBP,currency:XBT,description,email,level,old_name,opening_hours,opening_hours:covid19,payment:cash,payment:contactless,payment:credit_cards,payment:lightning,payment:lightning_contactless,payment:maestro,payment:mastercard,payment:notes,payment:onchain,payment:telephone_cards,payment:visa,payment:visa_debit,payment:visa_electron,phone,repair,service,shop,source,source:addr:postcode,start_date,survey:date,website,geometry
+984924853,Archway Computer Centre,,679,,Holloway Road,,,,,,,,,,,,,,,,,,,,,,,,,,,,,repair,computer,,,,,,-0.1335754|51.5650773
+4691563252,PC hub,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,+44 20 8348 1377,yes,,computer,,,,,https://mypchub.co.uk/,-0.1418038|51.5744714
+5064506293,Computer Repair,,227,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,repair,computer,,,,,,-0.1890367|51.6092016
+5064506298,Hillside Computer Services,,227,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,repair,computer,,,,,,-0.1889174|51.6092749
+5659477781,Mr Dweeb,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,computer,,,,,http://mrdweeb.co.uk/highgate/,-0.1495419|51.5711221
+6019922914,EasyFix,London,247,,Neasden Lane,internet_cafe,,,,,,,,,0,,,,,,,,,,,,,,,,,,,,computer,survey;Bing aerial imagery,,,,,-0.2500979|51.5593771
+6019922919,Neasden Computers,London,237,,Neasden Lane,,,,,,,,,,0,,,,,,,,,,,,,,,,,,,,computer,,,,,,-0.2498719|51.5591511
+9415569164,Computer Repair Center,London,205,N12 9AY,Woodhouse Road,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,computer,,,,,,-0.16|51.6124908
+9415569168,Satellite,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,+44 20 8361 0069,,,computer,,,,,,-0.1597242|51.6126066
+9748794486,Pioneer Information Solutions Ltd.,London,194,HA7 1EE,Honeypot Lane,,,,,,yes,,Please see website.,info@pioneeris.co.uk,0,,Mo-Fr 09:00-18:00,off,yes,yes,yes,,,yes,yes,yes,,yes,yes,yes,yes,+44 20 8204 9628,,,computer,,,2006-06-27,,https://www.pioneeris.co.uk,-0.2904716|51.5937701
+10816378569,iFix,Borehamwood,38,WD6 1DR,Shenley Road,,,,,,,,,,,The Ink Lab,,,,,,,,,,,,,,,,,,,computer,,code-point_open,,2024-03-15,,-0.2779405|51.6545428
+11758170372,Hadley AV,Barnet,9,EN5 3DJ,West End Lane,,2024-03-24,info@hadleyav.co.uk,https://www.instagram.com/hadley.av/,https://twitter.com/HadleyAVco,,yes,,,,,,,,,,yes,no,,,,yes,,,,,+44  0844 8704807,,,computer,,,,,https://www.hadleyav.co.uk/,-0.2100221|51.6522063

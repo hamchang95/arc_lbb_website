@@ -1,0 +1,7 @@
+osm_id,name,addr:city,addr:housename,addr:housenumber,addr:street,brand,brand:wikidata,brand:wikipedia,level,opening_hours,phone,shop,website,geometry
+2629971267,Denby,,London Designer Outlet,"Unit 88, first floor",Wembley Park Boulevard,,,,1,Mo-Sa 9:00-20:00; Su 11:00-17:00,+44 20 8795 4414,houseware,http://www.london-designer-outlet.com/brand-directory/denby,-0.2840188|51.5561572
+6553222081,Lakeland,,,,,Lakeland,Q16256199,en:Lakeland (company),0,,,houseware,,-0.2257207|51.5760325
+6952418126,Stacks,,,,,,,,,,,houseware,,-0.1770352|51.6167334
+9400321085,Home Needs,London,,109-111,Golders Green Road,,,,,,,houseware,,-0.2002253|51.5733306
+11063411478,Homelike,,,,,,,,,,,houseware,,-0.187869|51.6056135
+11098062078,Shutlers,,,,,,,,,,,houseware,,-0.19995|51.5826265

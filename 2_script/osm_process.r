@@ -1,5 +1,8 @@
+#--Install / load packages
+pacman::p_load(sf, here, magrittr, jsonlite, here, tmap, osmdata, tidyverse, data.table, rmapshaper, xml2, rvest, mapview, rio)
+
 #--Load all features
-source(here("2_script", "osm_features.r"))
+source(here("arc_lbb_website", "2_script", "osm_features.r"))
 
 ########### SET UP ##########
 #--Flatten list
@@ -7,14 +10,14 @@ place_list <- do.call(c, do.call(c, place_list_fin))
 names(place_list) <- str_replace_all(names(place_list), fixed("."), "_")
 
 #--Import park
-park <- st_read(here("3_output", "place", "park.shp"))
+park <- st_read(here("arc_lbb_website", "3_output", "place", "park.shp"))
 place_list[["park"]] <- park
 
 #--Remove empty list
 place_list <- Filter(function(x) nrow(x) > 0, place_list)
 
 #--Import Barnet shapefile
-bnt_shp <- sf::st_read(here("1_data", "9_geo", "bnt_lad.json"), crs = 4326) |>
+bnt_shp <- sf::st_read(here("arc_lbb_website", "1_data", "9_geo", "bnt_lad.json"), crs = 4326) |>
   st_make_valid()
 
 ########## PROCESS ########
@@ -90,3 +93,4 @@ names(poi_bnt_fin) <- str_remove(names(poi_bnt_fin), pattern_null)
 
 ####### CLEAN UP #####
 rm(list = c('poly_check', 'point_check', 'poi_bnt_poly', 'poi_bnt_pt', 'poi_bnt_check', 'i', 'j', 'place_list_fin', 'place_list', 'park'))
+saveRDS(poi_bnt_fin, here(here("arc_lbb_website", "3_output", "poi_bnt_fin.r")))

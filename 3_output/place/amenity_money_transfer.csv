@@ -1,0 +1,4 @@
+osm_id,name,addr:city,addr:housenumber,addr:street,amenity,contact:phone,level,money_transfer,phone,shop,source,website,geometry
+6019922908,Pound Pleasures VIP Warehouse,London,261,Neasden Lane,money_transfer,+44 20 8208 2004,0,Western Union,,variety_store,survey;Bing aerial imagery,,-0.2505599|51.5595951
+10293742366,Bayat Traders,,,,money_transfer,,,,+44 20 8933 8656,,,https://bayattraders.co.uk,-0.1769813|51.6141765
+10774395797,Unique Exchange,,,,money_transfer,,,,,,,,-0.1978102|51.651772

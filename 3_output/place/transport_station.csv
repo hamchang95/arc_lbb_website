@@ -1,0 +1,147 @@
+osm_id,name,access,addr:city,addr:country,addr:postcode,addr:street,addr:suburb,alt_name,amenity,backrest,bin,building:levels,defibrillator:location,description,emergency,entrance,fare_zone,fee,indoor,internet_access,internet_access:fee,layer,level,line,name:ja,name:ru,naptan:AtcoCode,naptan:Bearing,naptan:CommonName,naptan:Indicator,naptan:verified,network,network:subway,network:train,network:website,network:wikidata,note:wheelchair,old_name,operator,operator:wikidata,platforms,public_transport,railway,ref,ref:crs,ref:stanox,ref:tiploc,shelter_type,source,source:network,source_ref,start_date,station,subway,survey:date,toilets,toilets:disposal,toilets:wheelchair,train,unisex,website,wheelchair,wheelchair:description,wikidata,wikipedia,geometry
+2013971,Finchley Central,,,,,,,,,,,,,,,,4,,,,,,,Northern,,,940GZZLUFYC,,,,,London Underground,,,,,,Finchley (Church End),,,,station,station,,,,,,,,,,subway,yes,,,,,,,,yes,,Q1416721,en:Finchley Central tube station,-0.192318|51.6008355
+13884199,Mill Hill Broadway,,,,,,,Mill Hill Broadway Rail Station,,,,,,,,,,,,,,,,,,,9100MLHB,,,,,National Rail,,,https://www.nationalrail.co.uk/stations/mil/,Q26334,,,Thameslink,,,station,station,,MIL,,,,GPS waypoint,,,1868-07-13,,,,,,no,,,,no,,Q2396825,en:Mill Hill Broadway railway station,-0.2488001|51.6126689
+21141346,North Wembley,,,,,,,,,,,,,,,,4,,,,,,,Bakerloo,,,9100NWEMBLY,,,,,London Underground;London Overground,London Overground,London Overground,https://www.nationalrail.co.uk/stations/nwb/,Q26334,,,Transport for London,,,station,station,,NWB,72010,NWEMBLY,,NPE,Sign,http://en.wikipedia.org/wiki/List_of_London_Underground_stations;http://en.wikipedia.org/wiki/London_Overground#Stations,,subway,yes,,,,,,,,no,,Q730267,en:North Wembley station,-0.3038698|51.5624017
+43450256,Hendon,,,,,,,,,,,,,,,,,,,wlan,customers,,,,,,9100HDON,,,,,National Rail,,,https://www.nationalrail.co.uk/stations/hen/,Q26334,,,Thameslink,,,station,station,,HEN,,,,NPE;local knowledge,,http://en.wikipedia.org/wiki/List_of_London_railway_stations,1868-07-13,,,,,,,yes,,,limited,Step-free southbound only. Access from platform to train by manual boarding ramp.,Q2047351,en:Hendon railway station,-0.2388805|51.5802174
+182117639,Gospel Oak Platform 1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,stop_position,stop,1,,,,,,,,,,,,,,,yes,,,,,,,-0.1518572|51.5555452
+469760990,Wembley Park,,,,,,,,,,,,,,,,4,,,,,,,Metropolitan;Jubilee,,,490000257374,N,Wembley Park,86374,no,London Underground,,,,,,,Transport for London,,,station,station,,ZWY,,,,naptan_import;survey,,,,subway,yes,2013-08-23,,,,,,,yes,,Q956849,en:Wembley Park tube station,-0.2800532|51.5636297
+618860761,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,-0.1296768|51.5637743
+622958460,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,-0.1525963|51.5556583
+622958550,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,-0.1516152|51.5552946
+641843831,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,-0.1291461|51.5636028
+641843898,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,-0.1296335|51.56329
+1304054853,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,-0.194345|51.5720735
+1304054855,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,-0.1946026|51.5721579
+1389887370,Archway,,,,,,,,,,,,,,,,2;3,,,,,,,Northern,,Арчвей,940GZZLUACY,,,,,London Underground,,,,,,,London Underground,,,station,station,,,,,,,,http://en.wikipedia.org/wiki/List_of_London_Underground_stations,,subway,yes,,,,,,,,no,,Q636351,en:Archway tube station,-0.1349977|51.5654371
+1422925294,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,subway_entrance,,,,,,,,,,,,,,,,,,,,,,,-0.1944435|51.5721058
+1638039854,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,-0.1295876|51.5637366
+1651504140,Arnos Grove,,,,,,,,,,,,,,,,4,,,,,,,Piccadilly,,,940GZZLUASG,,,,,London Underground,,,,,,,London Underground,,2,station,station,,,,,,,,,,subway,yes,,,,,,,,no,,Q697151,en:Arnos Grove tube station,-0.1332873|51.6164024
+1670707933,East Finchley,,,,,,,,,,,,,,,,3,,,,,,,Northern,,Ист-Финчли,940GZZLUEFY,,,,,London Underground,,,,,,,,,,station,station,,,,,,,,http://en.wikipedia.org/wiki/List_of_London_Underground_stations,,subway,yes,,,,,,,,no,,Q1277850,en:East Finchley tube station,-0.1648137|51.5871881
+1670707949,Highgate,,,,,,,,,,,,,,,,3,,,,,-3,,Northern,,Хайгейт,940GZZLUHGT,,,,,London Underground,,,,,,,,,,station,station,,,,,,,,,,subway,yes,,,,,,,,no,,Q617824,en:Highgate tube station,-0.1458316|51.5776825
+1670707975,Tufnell Park,,,,,,,,,,,,,,,,2,,,,,,,Northern,,Тафнелл-парк,940GZZLUTFP,,,,,London Underground,,,,,,,London Underground,,,station,station,,,,,,,,,,subway,yes,,,,,,,,no,,Q1780856,en:Tufnell Park tube station,-0.138457|51.5568005
+1678368302,Hendon Central,,,,,,,,,,,,,,,,3;4,,,,,,,Northern,,Хэндон-сентрал,940GZZLUHCL,,,,,London Underground,,,,,,,,,,station,station,,,,,,,,https//en.wikipedia.org/wiki/List_of_London_Underground_stations,,subway,yes,,,,,,,,yes,,Q1308799,en:Hendon Central tube station,-0.2265541|51.5834006
+1687814967,High Barnet,,,,,,,,,,,,,,,,5,,,,,,,Northern,,,940GZZLUHBT,,,,,London Underground,,,,Q20075,,,Transport for London,Q682520,2,station,station,,ZHB,,,,,,,,subway,yes,,,,,,,,yes,Step-free access street to train,Q671034,en:High Barnet tube station,-0.1938826|51.650399
+1693158540,Brent Cross,,,,,,,,,,,,,,,,3,,,,,1,,Northern,,Брент-Кросс,940GZZLUBTX,,,,,London Underground,,,,,,,,,,station,station,,,,,,,,https//en.wikipedia.org/wiki/List_of_London_Underground_stations,,subway,yes,,no,,,,,,no,,Q1828818,en:Brent Cross tube station,-0.2139731|51.5768177
+1734132061,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,-0.1509544|51.5551121
+1734132063,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,-0.1511407|51.5550837
+1734132071,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,-0.1512404|51.555251
+1734132073,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,-0.1510431|51.5553266
+1825273032,Mill Hill East,,,,,,,,,,,,,,,,4,,,,,,,Northern,,,940GZZLUMHL,,,,,London Underground,,,,,,,,,,station,station,,,,,,,,,,subway,yes,,,,,,,,yes,Access from platform to train by manual boarding ramp.,Q1670635,en:Mill Hill East tube station,-0.2101451|51.6082746
+1825273052,West Finchley,,,,,,,,,,,,,,,,4,,,,,,,Northern,,,940GZZLUWFN,,,,,London Underground,,,,,,,,,,station,station,,,,,,,,,,subway,yes,,,,,,,,yes,Step-free access street to platform,Q175436,en:West Finchley tube station,-0.1883313|51.6094298
+1825273066,Woodside Park,,,,,,,,,,,,,,,,4,,,,,,,Northern,,,940GZZLUWOP,,,,,London Underground,,,,,,,,,,station,station,,,,,,,,,,subway,yes,,,,,,,,yes,Step-free access street to platform,Q1974772,en:Woodside Park tube station,-0.185523|51.617938
+2106179508,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,-0.2225823|51.5755851
+2106179649,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,-0.2226762|51.5756968
+2106179654,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,-0.2233016|51.5756847
+2106179679,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,-0.2232046|51.5753984
+2106179686,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,-0.2228716|51.575815
+2106179731,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,-0.2232838|51.5754982
+2414176527,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,-0.1521357|51.5556946
+2414176528,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,-0.151368|51.5554615
+2414176529,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,-0.1517761|51.5556061
+2414176530,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,-0.1507102|51.5551869
+2414176531,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,-0.1517961|51.5555812
+2414176532,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,-0.1517594|51.5556346
+2414176533,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,-0.1510522|51.5553309
+2414176534,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,-0.1521192|51.5557248
+2414176535,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,-0.1513734|51.5554224
+2414176536,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,-0.1510828|51.5553023
+2414176537,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,-0.1519606|51.5556375
+2414176538,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,-0.1508816|51.5552659
+2414176539,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,-0.1514759|51.5554645
+2414176540,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,-0.150776|51.5551651
+2414176541,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,-0.1509211|51.555231
+2414176542,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,-0.1508956|51.555257
+2414177240,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,-0.1514472|51.5554901
+2414177241,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,-0.151228|51.5553644
+2414177242,Disabled WC,permissive,,,,,,,toilets,,,,,,,,,no,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,flush,,,yes,,yes,,,,-0.1513428|51.555451
+2414177243,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,-0.151635|51.5555241
+2414177654,Gospel Oak Platform 2,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,stop_position,stop,2,,,,,,,,,,,,,,,yes,,,,,,,-0.1509435|51.5552186
+2414177657,Gospel Oak Platform 3,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,stop_position,stop,3,,,,,,,,,,,,,,,yes,,,,,,,-0.1522284|51.5557806
+2414177723,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,-0.1515731|51.5555863
+2414177724,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,-0.1514051|51.5554749
+2414177725,,,,,,,,,bench,yes,,,,,,,,,,,,,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,-0.1516284|51.5555991
+2414177726,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,-0.1513493|51.5555625
+2414177727,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,-0.1510745|51.5554816
+2414177728,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,-0.1523801|51.5557832
+2414177729,,,,,,,,,shelter,,yes,,,,,,,,,,,,1,,,,,,,,,,,,,,,,,,,,,,,,,public_transport,,,,,,,,,,,,,,,,,,-0.1513655|51.5555377
+2414177730,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,-0.1523687|51.5558001
+2414177731,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,-0.1510631|51.5555056
+2414177732,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,-0.1512173|51.5555064
+2414177733,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,-0.1512046|51.5555316
+2414179900,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,-0.1516575|51.5554157
+2414179902,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,-0.1516434|51.5554292
+2414179903,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,-0.1517561|51.5554709
+2414179904,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,-0.1515355|51.5554157
+2414179906,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,-0.1511412|51.5552523
+2414179907,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,-0.151345|51.555339
+2414179908,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,-0.151691|51.5554732
+2414179909,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,-0.1518694|51.5555349
+2414179910,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,-0.1518862|51.5555143
+2414179911,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,-0.1515288|51.5553673
+2414179913,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,-0.150877|51.5551355
+3669772932,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,-0.1516172|51.5556792
+4306818849,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,-0.1510055|51.5551211
+4306818851,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,-0.1509521|51.5552949
+4306818852,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,-0.1511068|51.5551693
+4306818855,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,-0.151077|51.5551716
+4306818859,,,,,,,,,,,,,,,,main,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,-0.1510606|51.5551473
+4306818862,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,-0.1510723|51.5551529
+4306818864,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,-0.1509262|51.5551855
+4306818865,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,-0.1513627|51.5554181
+4515082190,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,-0.1511177|51.5551901
+4865385362,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,-0.1290532|51.5636823
+5182384967,Oakwood,,,,,,,,,,,,,,,,5,,,,,,,Piccadilly,,,910GENFCOAK;940GZZLUOAK,,,,,London Underground,,,,,,,London Underground,,,station,station,,ZOA,,,,,,,,subway,yes,,,,,,,,yes,,Q1857872,en:Oakwood tube station,-0.1312548|51.6473302
+5182424567,Cockfosters,,,,,,,,,,,,,,,,5,,,,,,,Piccadilly,,,940GZZLUCKS,,,,,London Underground,,,,,,,London Underground,,,station,station,,ZCK,,,,,,https//en.wikipedia.org/wiki/List_of_London_Underground_stations,,subway,yes,,,,,,,,yes,Access from platform to train by manual boarding ramp,Q1105305,en:Cockfosters tube station,-0.1485149|51.651366
+5182424568,Burnt Oak,,,,,,,,,,,,,,,,4,,,,,,,Northern,,,940GZZLUBTK,,,,,London Underground,,,,,,,,,,station,station,,,,,,,,https//en.wikipedia.org/wiki/List_of_London_Underground_stations,,subway,yes,,,,,,,,no,,Q913515,en:Burnt Oak tube station,-0.2640125|51.6028082
+5183466819,Kingsbury,,,,,,,,,,,,,,,,4,,,,,,,Jubilee,,,940GZZLUKBY,,,,,London Underground,,,,,,,,,,station,station,,,,,,,,http://en.wikipedia.org/wiki/List_of_London_Underground_stations#cite_note-usage-6,,subway,yes,,,,,,,,yes,Step-free access street to train,Q1742147,en:Kingsbury tube station,-0.2787137|51.5843174
+5183466921,Queensbury,,,,,,,,,,,,,,,,4,,,,,,,Jubilee,,,940GZZLUQBY,,,,,London Underground,,,,,,,London Underground,,,station,station,,,,,,,,,,subway,yes,,,,,,,,no,,Q1566247,en:Queensbury tube station,-0.286181|51.5941903
+5183760370,Preston Road,,,,,,,,,,,,,,,,4,,,,,,,Metropolitan,,,940GZZLUPRD,,,,,London Underground,,,,,No entry/exit,,Transport for London,,,station,station,,,,,,survey,,https//en.wikipedia.org/wiki/List_of_London_Underground_stations,,subway,yes,,,,,,,,no,,Q1974765,en:Preston Road tube station,-0.2958081|51.5722732
+5222529392,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,-0.1943065|51.5721142
+5253341042,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,-0.1506869|51.5551912
+5253341043,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,-0.1510043|51.5550948
+5261807157,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,-0.1508735|51.5551345
+5261807160,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,-0.1507742|51.5551647
+5261807161,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,-0.1506281|51.5552133
+5261807162,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,-0.1510258|51.555434
+5261807163,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,-0.1510164|51.5555391
+5261807164,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,-0.1523978|51.5558476
+5261807176,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,-0.1300127|51.5634328
+5261807177,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,-0.1302595|51.563211
+5261807178,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,-0.1299739|51.563069
+5261807179,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,-0.1290448|51.5637207
+5261807180,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,-0.1294778|51.5638546
+5355174730,Edgware,,,,,,,,,,,,,,,,5,,,,,,,Northern,エッジウェア,,940GZZLUEGW,,,,,London Underground,,,,Q20075,,,,,,station,station,,ZED,,,,,,https//en.wikipedia.org/wiki/List_of_London_Underground_stations,,subway,yes,,,,,,,,yes,Step-free access street to train,Q727723,en:Edgware tube station,-0.2749555|51.6136623
+5482891928,Hampstead,,,,,,,,,,,,,,,,2;3,,,,,-3,-4,Northern,,,940GZZLUHTD,,,,,London Underground,,,,,,,,,,station,station,,,,,,,,,,subway,yes,,,,,,,,no,,Q1573996,en:Hampstead tube station,-0.1784251|51.5565973
+5520180858,Hadley Wood,,,,,,,,,,,,,,,,,,,,,,,,,,9100HADLYWD,,,,,National Rail,,,https://www.nationalrail.co.uk/stations/hdw/,Q26334,,,Great Northern,,,station,station,,HDW,,HADLYWD,,,,http://en.wikipedia.org/wiki/List_of_London_railway_stations,,,,,,,,,,,limited,Step free access to/from platform 4 only (Northbound) via a moderate slope. Customers travelling towards London who require step-free access may use your ticket to travel north to Potters Bar station before catching a train towards London.,Q5637997,en:Hadley Wood railway station,-0.1761376|51.6686291
+5585853828,Totteridge & Whetstone,,London,,N20 9QP,Totteridge Lane,Whetstone,,,,,,,,,,4,,,,,,,Northern,,,940GZZLUTAW,,,,,London Underground,,,,,,,,,,station,station,,,,,,,,,,subway,yes,,,,,,,,no,,Q2028165,en:Totteridge & Whetstone tube station,-0.1791837|51.6307163
+6306871525,Colindale,,,,,,,,,,,,,,,,4,,,,,,,Northern,,,940GZZLUCND,,,,,London Underground,,,,,,,,,,station,station,,,,,,,,,,subway,yes,,,,,,,,no,,Q1108796,en:Colindale tube station,-0.2499296|51.5954091
+6306871529,Golders Green,,,,,,,,,,,,,,,,3,,,,,,,Northern,,,940GZZLUGGN,,,,,London Underground,,,,,,,TFL,,,station,station,,,,,,OS,,,,subway,yes,,,,,,,,yes,Step-free access street to platform,Q2167448,en:Golders Green tube station,-0.194027|51.5723003
+6361189478,Stanmore,,Middlesex,GB,HA7 4PD,London Road,,,,,,,,"The station has Wheelchair Access to the ticket office & platforms, although stairs connect the two. To get between them, the accessible route involves a footpath through the car park.",,,5,,,,,,,Jubilee,,,940GZZLUSTM,,,,,London Underground,,,,,,,Transport for London,,,station,station,,ZSM,,,,,,http://en.wikipedia.org/wiki/List_of_London_Underground_stations,,subway,yes,,,,,,,,yes,,Q1757110,en:Stanmore tube station,-0.3026271|51.6188526
+6361199503,Canons Park,,,,,,,,,,,1,,,,,5,,,,,,,Jubilee,,,940GZZLUCPK,,,,,London Underground,,,,,,,,,,station,station,,,,,,,,,,subway,yes,,,,,,,,no,,Q1033599,en:Canons Park tube station,-0.2947453|51.6080065
+6724844050,Upper Holloway,,,,,,,,,,,,,,,,,,,,,,,,,,9100UPRHLWY,,,,,London Overground,,,https://www.nationalrail.co.uk/stations/uhl/,Q746021,,,London Overground,,2,station,station,,UHL,,,,,,http://en.wikipedia.org/wiki/List_of_London_railway_stations;http://en.wikipedia.org/wiki/London_Overground#Stations;OS,,,,,,,,,,,limited,Step-free platform interchange requires a 40m journey via street. Access from platform to train by manual boarding ramp.,Q2362457,en:Upper Holloway railway station,-0.1296473|51.563474
+6753787771,Gospel Oak,,,,,,,,,,,,,,,,,,,,,1,,,,,9100GOSPLOK,,,,,London Overground,,,https://www.nationalrail.co.uk/stations/gpo/,Q746021,,,London Overground,,3,station,station,,GPO,,,,,Sign,http://en.wikipedia.org/wiki/List_of_London_railway_stations;http://en.wikipedia.org/wiki/London_Overground#Stations,,,,,,,,,,https://tfl.gov.uk/overground/stop/910GGOSPLOK/gospel-oak-rail-station,yes,Access from platform to train by manual boarding ramp.,Q800829,en:Gospel Oak railway station,-0.151577|51.5554865
+6991113888,Hampstead Heath,,,,,,,,,,,,,,,,,,,,,,,,,,9100HMPSTDH,,,,,London Overground,,,https://www.nationalrail.co.uk/stations/hdh/,Q746021,,,London Overground,,,station,station,,HDH,,,,NPE,Sign,http://en.wikipedia.org/wiki/List_of_London_railway_stations;http://en.wikipedia.org/wiki/London_Overground#Stations,,,,,,,,yes,,,yes,Access from platform to train by manual boarding ramp.,Q2829947,en:Hampstead Heath railway station,-0.1653912|51.5552396
+7158881499,Cricklewood,,,,,,,,,,,,,,,,,,,,,,,,,,9100CRKLWD,,,,,National Rail,,,https://www.nationalrail.co.uk/stations/cri/,Q26334,,,Thameslink,,,station,station,,CRI,,,,Bing;survey,,http://en.wikipedia.org/wiki/List_of_London_railway_stations,1870-05-02,,,,,,,,,,limited,You can only enter and exit southbound platform. Access from platform to train by manual boarding ramp.,Q2794823,en:Cricklewood railway station,-0.2129746|51.5587554
+7170486628,Elstree & Borehamwood,,,,,,,,,,,,,,,,,,,,,,,,,,9100ELTR,,,,,National Rail,,,https://www.nationalrail.co.uk/stations/els/,Q26334,,,Thameslink,,,station,station,,ELS,,,,Bing,,http://en.wikipedia.org/wiki/List_of_London_railway_stations,1868-07-13,,,,,,,,,,yes,Access from platform to train by manual boarding ramp,Q5367763,en:Elstree & Borehamwood railway station,-0.2798815|51.652819
+7851898376,New Southgate,,,,,,,,,,,,,,,,,,,,,,,,,,9100NEWSGAT,,,,,National Rail,,,https://www.nationalrail.co.uk/stations/nsg/,Q26334,,,Great Northern,,,station,station,,NSG,,NEWSGAT,,,,http://en.wikipedia.org/wiki/List_of_London_railway_stations,,,,,,,,,,,no,,Q2526904,en:New Southgate railway station,-0.1428091|51.613804
+7851898377,Oakleigh Park,,,,,,,,,,,,,,,,,,,,,,,,,,9100OKLGHPK,,,,,National Rail,,,https://www.nationalrail.co.uk/stations/okl/,Q26334,,,Great Northern,,,station,station,,OKL,,OKLGHPK,,,,,,,,,,,,,,,no,,Q1222897,en:Oakleigh Park railway station,-0.1662251|51.6376675
+7851898378,New Barnet,,,,,,,,,,,,,,,,,,,,,,,,,,9100NBARNET,,,,,National Rail,,,https://www.nationalrail.co.uk/stations/nba/,Q26334,,Barnet,Great Northern,,,station,station,,NBA,,NBARNET,,,,http://en.wikipedia.org/wiki/List_of_London_railway_stations,,,,,,,,,,,no,,Q1217434,en:New Barnet railway station,-0.1726236|51.6482779
+8907391302,Brent Cross West,,,,,,,,,,,,,,,,3,,,,,,,,,,,,,,,National Rail,,,,Q26334,,,,,,station,station,,BCZ,,,,,,,2023-12-10,,,,,,,yes,,,,,Q4961357,en:Brent Cross West railway station,-0.2265437|51.5688188
+9433140617,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,-0.1521108|51.5555007
+9557664823,,,,,,,,,,,,,Wall-mounted on platform 2,,defibrillator,,,,no,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,-0.1518827|51.5556655
+10743233113,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,-0.1940627|51.5720417
+10743233115,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,-0.1952458|51.5718745
+10743233116,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,-0.1954094|51.5719034
+10743233117,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,-0.1954963|51.5724418
+10743233118,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,-0.1946914|51.5722027
+10743233119,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,-0.1945062|51.5721263
+10743233120,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,-0.1941272|51.5720609
+10743233121,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,-0.1936769|51.5719435
+10743233122,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,-0.1937161|51.5717651
+10743233123,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,-0.1937692|51.5715813
+10743233124,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,-0.1939965|51.5716095
+10743233125,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,-0.1949947|51.5718202
+10743233126,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,-0.1954223|51.5720714
+10743233127,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,-0.1954931|51.5724621
+10790156046,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,-0.1508896|51.5552167
+10790156047,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,-0.1508512|51.5552464

@@ -7,3 +7,7 @@ This is a website for ARC-LBB (Assessing the Risk of Crime in London Borough of 
 ::: {.callout-important appearance="minimal"}
 "Cognitivie behaviour therapy (CBT) for individuals to prevent crimes has shown to be less effective in countries with higher level of socioeconomic inequality like UK compared to countries with lesser inequality like Canada." - Crime Surveys User Conference (2024)
 :::
+
+ARC-LBB project started with a question of how much can structural elements contribute to criminal incidence. Although crime at individual level appears to be an outcome of personal behaviour, identifying environmental factors can help inform the risk of crime at population level, akin to structural determinants in population health.
+
+Similar efforts have been recognised in crime analytics. Metropolitan Police has started to investigate Risk Terrain Modelling, which aims to identify geographical factors that correlate to specific crime type of interest ([Metropolitan Police 2023](https://www.met.police.uk/foi-ai/metropolitan-police/disclosure-2023/june-2023/mps-use-risk-terrain-modelling-application/)). Several works have been ongoing in the academia as well ([Cichosz 2020](https://www.mdpi.com/2220-9964/9/7/459), [Shah et al 2021](https://vciba.springeropen.com/articles/10.1186/s42492-021-00075-z), [Yunus & Loo 2023](https://www.sciencedirect.com/science/article/pii/S2772415823000160)).

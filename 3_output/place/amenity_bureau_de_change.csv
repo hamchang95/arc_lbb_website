@@ -1,0 +1,6 @@
+osm_id,name,addr:city,addr:country,addr:housenumber,addr:postcode,addr:street,amenity,name:ar,name:en,note:name:ar,opening_hours,phone,source,survey:date,website,geometry
+2430158082,Aldewan,Wembley,GB,290,,Preston Road,bureau_de_change,الديون,Aldewan,"Back translates as ""debt""!",,+44 20 8904 9011,survey;Bing 2012,2015-04-12,,-0.2943286|51.5732619
+4377222441,,,,,,,bureau_de_change,,,,,,,,,-0.2015593|51.6549422
+6685139986,PC Computers Western Union,,,,,,bureau_de_change,,,,,,,,,-0.2278384|51.5825617
+9399257386,Currency Exchange,London,,242,N12 0RU,Woodhouse Road,bureau_de_change,,,,Mo-Fr 09:00-17:00; Sa 10:00-16:00,+44 20 8211 4949,,,http://kchange.co.uk/,-0.1614355|51.6115721
+9839605792,Currency Exchange Corporation,,,,,,bureau_de_change,,,,Mo-Sa 09:30-17:30,,,,,-0.1316308|51.6478834
