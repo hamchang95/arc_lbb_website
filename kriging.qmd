@@ -145,7 +145,7 @@ We need to create a surface onto which kriging model can make prediction. In oth
 
 ```{r}
 #--Import Barnet shapefile
-bnt_shp <- sf::st_read(here("arc_lbb_website", "1_data", "9_geo", "bnt_lad.json"), crs = 4326) |> 
+bnt_shp <- sf::st_read(here("1_data", "9_geo", "bnt_lad.json"), crs = 4326) |> 
     st_make_valid() |>
     st_transform(27700) # reprojects onto British National Grid, of which the unit is meter
 
