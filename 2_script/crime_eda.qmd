@@ -343,7 +343,7 @@ print(moran) # strong positive autocorrelation, that is, nearby points tend to h
 
 ### Local Autocorrelation Test
 ```{r}
-# --Perform Local Moran's I analysis
+#--Perform Local Moran's I analysis
 local_moran <- spdep::localmoran(asb_sp$count, dist_weight)
 asb_sp$morans_I <- local_moran[, 1]
 asb_sp$expected_I <- local_moran[, 2]
