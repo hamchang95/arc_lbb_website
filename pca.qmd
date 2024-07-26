@@ -91,7 +91,7 @@ y_test <- asb_y[!dimnames(asb_y)[[1]] %in% random_indices,] |>
     mutate(across(where(is.numeric), ~round(.x, 2)))
 ```
 
-Both outcome and predictor variables were split into test and train sets randomly. It is important that test sets do not learn from train sets. Hence, we will specifically create a PCA model using the train set of predictor variables, `x_trian`. 
+Both outcome and predictor variables were split into test and train sets randomly. It is important that test sets do not learn from train sets. Hence, we will specifically create a PCA model using the train set of predictor variables, `x_train`. 
 
 ## Run PCA 
 ```{r}

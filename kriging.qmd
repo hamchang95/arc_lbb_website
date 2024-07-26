@@ -207,23 +207,20 @@ grid_fin <- grid_bnt_wgs84 |>
     mutate(
         krige_pred = exp(kriged_result_grid$var1.pred),
         krige_var = exp(kriged_result_grid$var1.var)
-    ) |>
-    mutate(
-        krige_pred_per_yr = krige_pred / 3
-    ) # dividing by 3 because the data spanned over 3 years
+    ) 
 
 # Visualise on static map
 ggplot() +
-  geom_sf(data = grid_fin, aes(colour = krige_pred_per_yr)) +
+  geom_sf(data = grid_fin, aes(colour = krige_pred)) +
   scale_colour_gradient(low = "green", high = "red", name = "Predicted Value") +
    geom_sf(data = bnt_shp, alpha = 0, lwd = 1.5, colour = "black") +
   ggtitle("Hotspot Map for Anti-Social Behaviour Predicted by Kriging Model") +
   theme_minimal()
 
 # Visualise on interactive map
-pal_asb <- leaflet::colorNumeric(palette = 'RdYlGn', grid_fin$krige_pred_per_yr, rev = TRUE)
+pal_asb <- leaflet::colorNumeric(palette = 'RdYlGn', grid_fin$krige_pred, rev = TRUE)
 
-grid_fin$krige_popup <- paste0("Predicted Number of ASB: ", as.character(round(grid_fin$krige_pred_per_yr, 0))) 
+grid_fin$krige_popup <- paste0("Predicted Number of ASB: ", as.character(round(grid_fin$krige_pred, 0))) 
 
 leaflet::leaflet(data = grid_fin) |>
     leaflet::addTiles() |> 
@@ -234,7 +231,7 @@ leaflet::leaflet(data = grid_fin) |>
         opacity = 0.8) |>
     leaflet::addCircles(
     data = grid_fin,
-    color = ~pal_asb(krige_pred_per_yr),
+    color = ~pal_asb(krige_pred),
     popup = ~krige_popup,
     radius = 10, # Adjust radius as needed
     stroke = TRUE,
@@ -242,7 +239,7 @@ leaflet::leaflet(data = grid_fin) |>
   )  |>
   addLegend('bottomright',
             pal =pal_asb,
-            values = ~krige_pred_per_yr,
+            values = ~krige_pred,
             title = 'Predicted Count of ASB',
             opacity = 1)
 
@@ -274,13 +271,13 @@ validation <- test_asb |>
 
 # Calculate RMSE to evaluate model performance
 rmse_asb <- Metrics::rmse(
-    actual = validation$n/3,
-    predicted = validation$krige_pred/3)
+    actual = validation$n,
+    predicted = validation$krige_pred)
 
 print(paste0("Root mean square error of the kriging model is ", round(rmse_asb,2 )))
 
-min_asb <- min(validation$krige_pred)/3
-max_asb <- max(validation$krige_pred)/3
+min_asb <- min(validation$krige_pred)
+max_asb <- max(validation$krige_pred)
 
 nrmse <- rmse_asb / (max_asb - min_asb)
 
