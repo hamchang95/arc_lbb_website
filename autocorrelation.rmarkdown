@@ -1,0 +1,353 @@
+---
+title: "Autocorrelation"
+execute:
+  warning: false
+  message: false
+knitr:
+  opts_chunk: 
+    collapse: true
+    comment: "#>"
+format:
+  html:
+    toc: true
+    html-math-method: katex
+    code-fold: true
+    css: styles.css
+    embed-resources: true
+editor_options: 
+  chunk_output_type: console
+---
+
+
+## Introduction
+
+::: {.callout-note appearance="minimal"}
+"Everything is related to everything else, but near things are more related than distant things." -Waldo R. Tobler
+:::
+
+Spatial autocorrelation is a way to measure how much things that are close to each other are similar or different. Imagine a usual rainy day in London. If it rains in one part of a town, it is also likely raining in nearby areas. This shows high spatial autocorrelation as weather in one place is similar to the weather in nearby places.
+
+It is important to investigate spatial autocorrelation in each type of crime, particularly when we want to estimate risk of crime with place-based information. By analysing spatial autocorrelation, we can identify if there is any spatial pattern and hotspot for each type of crime.
+
+### Examples of Spatial Autocorrelation
+
+![(a) positive - clustering (b) negative - dispersion (c) random](autocorrelation.png){width="320"}
+
+The diagram[^1] above illustrate examples of spatial autocorrelation. Both (a) and (b) show some patterns, whereas with (c) we can't explain how black and white boxes are located. Hence, (c) is completely random and shows no pattern, therefore, no autocorrelation.
+
+[^1]: Anselin, Luc & Piras, Gianfranco. (2009). Approaches Towards the Identification of Patterns in Violent Events, Baghdad, Iraq. 82.
+
+For (a), we can also see black boxes are clustered at a corner. This is clustering, or positive autocorrleation. One of the common measures of spatial autocorrelation, Moran's Index (or Moran's I) is positive in the case of (a). With (b), we can see a checkerboard pattern. We can safely say (b) is dispersed, which has negative spatial autocorrelation, scoring negative on Moran's I.
+
+## Set Up
+### Load packages and data
+
+```{r}
+#--Install / load packages
+pacman::p_load(sf, here, tmap, osmdata, tidyverse, data.table, rio, flextable, mapview, units, knitr, spdep, deldir, sp, rgeoda)
+
+#--Import street-level crime data
+crime <- rio::import(here::here("3_output", "crime_2024-05-09.csv")) |>
+    dplyr::mutate(category = stringr::str_replace_all(category, "-", " ")) |>
+    sf::st_as_sf(coords = c("location.longitude", "location.latitude"), crs = 4326, dim = "XY") 
+    #from 2021-04 to 2024-03
+
+#--Import Barnet shapefile
+bnt_shp <- sf::st_read(here("1_data", "9_geo", "bnt_lad.json"), crs = 4326) |>
+  st_make_valid()
+
+#--Filter crime that intersects Barnet boundary
+crime_bnt <- crime[which(st_intersects(bnt_shp, crime, sparse = FALSE)),]
+
+#--Reproject onto OSGB36
+crime_bnt <- st_transform(crime_bnt, 27700)
+```
+
+
+### Subset Data by Type of Crime
+
+```{r}
+#--Subset crime data 
+asb <- subset(crime_bnt, category == "anti social behaviour")
+vc <- subset(crime_bnt, category == "violent crime")
+other <- subset(crime_bnt, category == "other theft")
+vhc <- subset(crime_bnt, category == "vehicle crime")
+tfp <- subset(crime_bnt, category == "theft from the person")
+brg <- subset(crime_bnt, category == "burglary")
+```
+
+
+## Global Spatial Autocorrelation
+We will investigate if there is a spatial autocorrelation overall in each type of crime. First of all, we need to define neighbours as spatial autocorrelation is contingent on how we define neighbours. While there are many ways to do so, we will deinfe points as neighbours if they are within a certain distance. This distance is called critical threshold.
+
+### Create Distance-Based Weight
+#### Example with ASB
+
+```{r}
+#--Get X and Y coordinates
+asb_coords <- st_coordinates(asb)
+
+#--To find a critical threshold, find the k-nearest neighbors for k = 1
+knn1_asb <- knearneigh(asb_coords)
+
+#--Convert k1 to nb
+k1_asb <- knn2nb(knn1_asb)
+
+#--Calculate critical threshold: maximum distance between neighbours
+critical_threshold_asb <- max(unlist(nbdists(k1_asb, asb_coords)))
+
+critical_threshold_asb
+
+#--Calculate distance-band weights
+nb_dist_band_asb <- dnearneigh(asb_coords, 0, critical_threshold_asb)
+
+summary(nb_dist_band_asb)
+
+#--Get cardinality: number of neighbours for each point
+dist_band_card_asb <- spdep::card(nb_dist_band_asb)
+
+#--Check number of neighbours
+ggplot() +
+  geom_histogram(aes(x=dist_band_card_asb)) +
+  xlab("Number of Neighbours")+
+  ggtitle("Connectivity Histogram")+
+  theme_minimal()
+
+#--Create weight from nb
+dist_weight_asb <- nb2listw(nb_dist_band_asb)
+```
+
+
+The critical threshold for ASB was 660m. That is, ASB points were considered neighbours 
+#### Repeat
+##### Define Function: create_dist_weight()
+
+```{r}
+create_dist_weight <- function(crime_type){
+  #--Get X and Y coordinates
+  coords <- st_coordinates(crime_type)
+
+  #--To find a critical threshold, find the k-nearest neighbors for k = 1
+  knn1 <- knearneigh(coords)
+
+  #--Convert k1 to nb
+  k1 <- knn2nb(knn1)
+
+  #--Calculate critical threshold: maximum distance between neighbours
+  critical_threshold <- max(unlist(nbdists(k1, coords)))
+
+  print(paste0("Critical threshold is: ", critical_threshold, "m"))
+
+  #--Calculate distance-band weights
+  nb_dist_band <- dnearneigh(coords, 0, critical_threshold)
+
+  summary(nb_dist_band)
+
+  #--Get cardinality: number of neighbours for each point
+  dist_band_card <- spdep::card(nb_dist_band)
+
+  #--Create weight from nb
+  dist_weight <- nb2listw(nb_dist_band)
+  print("Done")
+  return(dist_weight)
+}
+```
+
+
+#### Loop
+
+```{r}
+#--Create list of crimes by type
+l_crime <- list(asb, vc, other, vhc, tfp, brg)
+names(l_crime) <- c("asb", "vc", "other", "vhc", "tfp", "brg")
+
+#--Apply create_dist_weight()
+l_weight <- vector("list", length(l_crime))
+names(l_weight) <- names(l_crime)
+l_weight <- lapply(l_crime, create_dist_weight)
+```
+
+
+### Count the Number of Neighbouring Points of Each Crime Point within 100m
+#### Example with ASB
+
+```{r}
+#--Count 
+counts_asb <- numeric(nrow(asb))
+
+for (i in seq_along(asb)){
+  #--Get a ponit 
+  point <- asb[i,]$geometry
+  
+  #--Get buffer basically area within 100m 
+  buffer <- st_buffer(point, units::as_units(100, "m"))
+  
+  #--Test if the asb points intersect with buffer
+  test <- st_intersects(asb$geometry, buffer)
+
+  #--Calculate the number of points intersecting buffer
+  n <- which(sapply(test, function(x) sum(x) != 0)) |> length()
+
+  #--Exclude the point itself
+  counts_asb[i] <- n - 1
+}
+
+#--Assign the counts to the 'count' column of the spatial points object
+asb$count <- counts_asb
+
+#--Check the structure of 'asb' to ensure the count variable is added correctly
+summary(asb)
+```
+
+
+#### Repeat
+##### Define Function: count_crime()
+
+```{r}
+count_crime <- function(crime, radius){
+  #--Count 
+  counts <- numeric(nrow(crime))
+
+  for (i in seq_along(crime)){
+    #--Get a point 
+    point <- crime[i,]$geometry
+    
+    #--Get buffer basically area within the specified radius
+    buffer <- st_buffer(point, units::as_units(radius, "m"))
+    
+    #--Test if the crime points intersect with buffer
+    test <- st_intersects(crime$geometry, buffer)
+
+    #--Calculate the number of points intersecting buffer
+    n <- which(sapply(test, function(x) sum(x) != 0)) |> length()
+
+    #--Exclude the point itself
+    counts[i] <- n - 1
+  }
+
+  #--Assign the counts to the 'count' column of the spatial points object
+  crime$count <- counts
+  print("Done")
+  return(crime)
+}
+```
+
+
+##### Loop
+
+```{r}
+#--Count crime within 100m radius
+l_crime <- map(l_crime, ~count_crime(.x, 100))
+```
+
+
+### Perform Global Autocorrelation Test
+#### Example with ASB
+
+```{r}
+# Conduct global Moran's I analysis
+set.seed(1234)
+moran_asb <- spdep::moran.test(asb$count, listw = dist_weight_asb)
+  # using the count of ASB crimes within 100m of each point as the variable to assess for global spatial autocorrelation
+
+# --Print Moran's I test results
+print(moran_asb) 
+  # weak positive autocorrelation, that is, nearby points tend to have similar values
+```
+
+
+#### Repeat 
+
+```{r}
+l_moran <- vector("list", length(l_crime))
+l_moran <- map2(.x = l_crime, .y = l_weight, .f = ~spdep::moran.test(.x$count, listw = .y))
+
+lapply(l_moran, print)
+```
+
+
+Only ASB points within 100m showed a weak positive spatial auto-correlation. We will then run the test again with a different set of radius for the buffer.
+
+### Pull Everything Together
+
+```{r}
+run_global_sa <- function(crime, radius, weight){
+  # Count crime within the specified radius
+  crime <- count_crime(crime, radius)
+  print("Crime count added!")
+
+  # Run global autocorrelation test
+  set.seed(1234)
+  moran <- spdep::moran.test(crime$count, listw = weight)
+  print(moran)
+
+  return(moran)
+}
+```
+
+
+#### Loop run_global_sa() with different sets of radius
+
+```{r}
+c_radius <- c(50, 75, 200, 300)
+
+l_moran_radius <- vector("list", length(l_crime)-1)
+l_moran_radius <- map(l_moran_radius, ~vector("list", length(c_radius)))
+names(l_moran_radius) <- names(l_crime)[2:6]
+
+for (j in 2:length(l_crime)){
+  for (i in seq_along(c_radius)){
+    l_moran_radius[[(j-1)]][[i]] <- run_global_sa(
+      crime = l_crime[[j]],
+      radius = c_radius[[i]],
+      weight = l_weight[[j]])
+  }
+}
+```
+
+
+## Local Spatial Autocorrelation
+
+```{r}
+#--Perform Local Moran's I analysis
+local_moran <- spdep::localmoran(asb$count, dist_weight_asb)
+asb$morans_I <- local_moran[, 1]
+asb$expected_I <- local_moran[, 2]
+asb$p_values <- local_moran[,5]
+
+asb <- asb |> 
+  mutate(quadrant = case_when(
+    morans_I > 0 & expected_I > 0 & p_values < 0.05 ~"High-High",
+    morans_I < 0 & expected_I < 0 & p_values < 0.05 ~"Low-Low",
+    morans_I > 0 & expected_I < 0 & p_values < 0.05 ~"High-Low",
+    morans_I < 0 & expected_I > 0 & p_values < 0.05 ~"Low-High", 
+    .default = "Not Significant"
+  ))
+
+asb$quadrant <- factor(asb$quadrant, levels = c("High-High", "Low-Low", "High-Low", "Low-High", "Not Significant"))
+
+table(asb$quadrant) |>
+  as.data.frame() |>
+  flextable()
+
+#--Plot the spatial data with color encoding for Local Moran's I
+ggplot() +
+  geom_sf(data = asb, aes(colour = quadrant)) +
+  geom_sf(data = bnt_shp, alpha = 0, lwd = 2) +
+  theme_minimal() +
+  labs(colour = "Quadrant") +
+  ggtitle("Local Moran Cluster Map of ASB Points")
+
+pal_asb <- leaflet::colorFactor(palette = 'RdYlGn', asb$quadrant)
+
+leaflet::leaflet(data = st_transform(asb, 4326)) |>
+  leaflet::addTiles() |>
+  leaflet::addCircles(
+    color = ~pal_asb(quadrant),
+    popup = ~month) |>
+  leaflet::addLegend('bottomright',
+            pal =pal_asb,
+            values = ~quadrant,
+            title = 'Local Moran Cluster of ASB',
+            opacity = 0.7)
+```

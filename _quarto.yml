@@ -13,7 +13,7 @@ website:
       - kriging.qmd
       - pca.qmd
       - multikriging.qmd
-      - gwr.qmd
+      - ml.qmd
       - limitation.qmd
       
 

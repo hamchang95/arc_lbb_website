@@ -1,5 +1,5 @@
 ---
-title: "GWR"
+title: "Classic ML"
 execute:
   warning: false
   message: false

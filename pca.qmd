@@ -33,7 +33,7 @@ rm(list = ls())
 pacman::p_load(sp, sf, data.table, rio, here, leaflet, gstat, tidyverse, Metrics, scales, corrr, ggcorrplot, FactoMineR, factoextra, corrplot)
 
 #--Import street-level asb data
-asb <- import(here("arc_lbb_website", "3_output", "asb_with_nearest_distances.csv"))
+asb <- import(here("3_output", "asb_with_nearest_distances.csv"))
 
 #--Calculate count of crimes per location coordinate
 asb_count <- asb |> 
@@ -91,16 +91,18 @@ y_test <- asb_y[!dimnames(asb_y)[[1]] %in% random_indices,] |>
     mutate(across(where(is.numeric), ~round(.x, 2)))
 ```
 
+Both outcome and predictor variables were split into test and train sets randomly. It is important that test sets do not learn from train sets. Hence, we will specifically create a PCA model using the train set of predictor variables, `x_trian`. 
+
 ## Run PCA 
 ```{r}
 #--Apply PCA
 x_train_pca <- FactoMineR::PCA(x_train[-c(1,2)], graph = FALSE, scale.unit = TRUE)
 
 #--Check cumulative percentage of variance
-x_train_pca$eig
+factoextra::fviz_eig(x_train_pca, addlabels = TRUE)
 ```
 
-Component 1 to 7 explains around 70% of total variance. Hence, we will specify 7 as the number of components to keep.
+Scree plot visualises the amount of variation explained by each principal component. Component 1 to 7 explains around 70% of total variance. Hence, we will specify 7 as the number of components to keep.
 
 ```{r}
 #--Apply PCA again with the selected number of components
@@ -120,22 +122,50 @@ x_test_pred_df <- cbind(x_test_pred_df, x = x_test$x, y = x_test$y)
 ```
 
 ## Understand Output
+Now that the predictor variables have been summarised to 7 principal components. We will try to understand what each component best represent. We can investigate how much each predictor variable contributed to the construction of a principal component by looking into $$cos^2$$ value of the PCA model.
 ```{r}
+#--Extract information about variables
 var <- get_pca_var(x_train_pca)
 
-#--Quality of representation (how well the variable is represnted by PC)
-#---View cos2 value in each dimension
-var$cos2[,1] |> sort(TRUE) |> head(10)  
-var$cos2[,2] |> sort(TRUE) |> head(10) 
-var$cos2[,3] |> sort(TRUE) |> head(10)
-var$cos2[,4] |> sort(TRUE) |> head(10)
-var$cos2[,5] |> sort(TRUE) |> head(10)
-
 #--Contribution (how much each variable contributes to the construction of a principal component)
-#---View contribution values
-var$contrib[,1] |> sort(TRUE) |> head(10) 
-var$contrib[,2] |> sort(TRUE) |> head(10) 
-var$contrib[,3] |> sort(TRUE) |> head(10)
-var$contrib[,4] |> sort(TRUE) |> head(10)
-var$contrib[,5] |> sort(TRUE) |> head(10)
+#---Get values
+var$cos2[,1] |> sort(TRUE) |> head(10)  
+var$cos2[,2] |> sort(TRUE) |> head(10)  
+var$cos2[,3] |> sort(TRUE) |> head(10)  
+var$cos2[,4] |> sort(TRUE) |> head(10)  
+var$cos2[,5] |> sort(TRUE) |> head(10)  
+var$cos2[,6] |> sort(TRUE) |> head(10)  
+var$cos2[,7] |> sort(TRUE) |> head(10)  
+
 ```
+
+```{r}
+#--Dimension 1 
+factoextra::fviz_contrib(x_train_pca, "var", axes = 1, top = 10) 
+```
+
+Distance to nearest car repair shop, electronics, money exchange and transfer, garagaes, vertinary, houseware, gas stations (fuel), liquor shop (alcohol), warehouse and laundry contributed most to the construction of first dimension. Although there is a variation in type of places, it appears that the first component primarily captures outskirts.
+
+```{r}
+#--Dimension 2
+factoextra::fviz_contrib(x_train_pca, "var", axes = 2, top = 10)
+```
+
+Main drivers of the second component were vicnity to bakery, bank, clothes, lawyer's office, bridge, real estate agent, post-secondary institution (e.g., college or university), ATM machines, post office and convenience store. We can safely say the second dimension best represents high streets.
+
+```{r}
+#--Dimension 3
+factoextra::fviz_contrib(x_train_pca, "var", axes = 3, top = 10)
+```
+
+Distance to nearest bar, clinic, doctor's office, houseware shop, aesthetics shop (beauty), lawyer's office, post-secondary institution, hospital, post office and veterinary clinic was most pivotal in the formation of third dimension. Although there is a variation in the type of places, third dimension can be summarised as healthcare settings. 
+
+```{r}
+#--Dimension 4
+factoextra::fviz_contrib(x_train_pca, "var", axes = 4, top = 10)
+factoextra::fviz_contrib(x_train_pca, "var", axes = 5, top = 10)
+factoextra::fviz_contrib(x_train_pca, "var", axes = 6, top = 10)
+factoextra::fviz_contrib(x_train_pca, "var", axes = 7, top = 10)
+```
+
+The 
