@@ -101,49 +101,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   }
 }</script>
 
-  <script>window.backupDefine = window.define; window.define = undefined;</script><script src="https://cdn.jsdelivr.net/npm/katex@0.15.1/dist/katex.min.js"></script>
-  <script>document.addEventListener("DOMContentLoaded", function () {
- var mathElements = document.getElementsByClassName("math");
- var macros = [];
- for (var i = 0; i < mathElements.length; i++) {
-  var texText = mathElements[i].firstChild;
-  if (mathElements[i].tagName == "SPAN") {
-   katex.render(texText.data, mathElements[i], {
-    displayMode: mathElements[i].classList.contains('display'),
-    throwOnError: false,
-    macros: macros,
-    fleqn: false
-   });
-}}});
-  </script>
-  <script>window.define = window.backupDefine; window.backupDefine = undefined;</script><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.15.1/dist/katex.min.css">
-
-<script type="text/javascript">
-const typesetMath = (el) => {
-  if (window.MathJax) {
-    // MathJax Typeset
-    window.MathJax.typeset([el]);
-  } else if (window.katex) {
-    // KaTeX Render
-    var mathElements = el.getElementsByClassName("math");
-    var macros = [];
-    for (var i = 0; i < mathElements.length; i++) {
-      var texText = mathElements[i].firstChild;
-      if (mathElements[i].tagName == "SPAN") {
-        window.katex.render(texText.data, mathElements[i], {
-          displayMode: mathElements[i].classList.contains('display'),
-          throwOnError: false,
-          macros: macros,
-          fleqn: false
-        });
-      }
-    }
-  }
-}
-window.Quarto = {
-  typesetMath
-};
-</script>
 
 <link rel="stylesheet" href="styles.css">
 </head>
@@ -155,7 +112,7 @@ window.Quarto = {
     <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
       <div class="navbar-container container-fluid">
       <div class="navbar-brand-container mx-auto">
-    <a class="navbar-brand" href="index.html">
+    <a class="navbar-brand" href="./index.html">
     <span class="navbar-title">ARC-LBB</span>
     </a>
   </div>
@@ -166,39 +123,39 @@ window.Quarto = {
           <div class="collapse navbar-collapse" id="navbarCollapse">
             <ul class="navbar-nav navbar-nav-scroll me-auto">
   <li class="nav-item">
-    <a class="nav-link" href="index.html"> 
+    <a class="nav-link" href="./index.html"> 
 <span class="menu-text">Home</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="about.html"> 
+    <a class="nav-link" href="./about.html"> 
 <span class="menu-text">About</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="eda.html"> 
+    <a class="nav-link" href="./eda.html"> 
 <span class="menu-text">EDA</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="autocorrelation.html"> 
+    <a class="nav-link" href="./autocorrelation.html"> 
 <span class="menu-text">Autocorrelation</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="kriging.html"> 
+    <a class="nav-link" href="./kriging.html"> 
 <span class="menu-text">Kriging</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link active" href="pca.html" aria-current="page"> 
+    <a class="nav-link active" href="./pca.html" aria-current="page"> 
 <span class="menu-text">PCA</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="multikriging.html"> 
+    <a class="nav-link" href="./multikriging.html"> 
 <span class="menu-text">Multi-kriging</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="ml.html"> 
+    <a class="nav-link" href="./ml.html"> 
 <span class="menu-text">Classic ML</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="limitation.html"> 
+    <a class="nav-link" href="./limitation.html"> 
 <span class="menu-text">Limitation</span></a>
   </li>  
 </ul>
@@ -224,7 +181,10 @@ window.Quarto = {
   <li><a href="#split-data-into-test-train-sets" id="toc-split-data-into-test-train-sets" class="nav-link" data-scroll-target="#split-data-into-test-train-sets">Split Data into Test &amp; Train Sets</a></li>
   </ul></li>
   <li><a href="#run-pca" id="toc-run-pca" class="nav-link" data-scroll-target="#run-pca">Run PCA</a></li>
-  <li><a href="#understand-output" id="toc-understand-output" class="nav-link" data-scroll-target="#understand-output">Understand Output</a></li>
+  <li><a href="#understand-output" id="toc-understand-output" class="nav-link" data-scroll-target="#understand-output">Understand Output</a>
+  <ul class="collapse">
+  <li><a href="#extract-cos2-value" id="toc-extract-cos2-value" class="nav-link" data-scroll-target="#extract-cos2-value">Extract Cos2 Value</a></li>
+  </ul></li>
   </ul>
 </nav>
     </div>
@@ -329,7 +289,7 @@ window.Quarto = {
 <span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="fu">across</span>(<span class="fu">where</span>(is.numeric), <span class="sc">~</span><span class="fu">round</span>(.x, <span class="dv">2</span>)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
-<p>Both outcome and predictor variables were split into test and train sets randomly. It is important that test sets do not learn from train sets. Hence, we will specifically create a PCA model using the train set of predictor variables, <code>x_trian</code>.</p>
+<p>Both outcome and predictor variables were split into test and train sets randomly. It is important that test sets do not learn from train sets. Hence, we will specifically create a PCA model using the train set of predictor variables, <code>x_train</code>.</p>
 </section>
 </section>
 <section id="run-pca" class="level2">
@@ -374,7 +334,9 @@ window.Quarto = {
 </section>
 <section id="understand-output" class="level2">
 <h2 class="anchored" data-anchor-id="understand-output">Understand Output</h2>
-<p>Now that the predictor variables have been summarised to 7 principal components. We will try to understand what each component best represent. We can investigate how much each predictor variable contributed to the construction of a principal component by looking into <span class="math display">cos^2</span> value of the PCA model.</p>
+<p>Now that the predictor variables have been summarised to 7 principal components. We will try to understand what each component best represent. We can investigate how much each predictor variable contributed to the construction of a principal component by looking into cos2 value of the PCA model.</p>
+<section id="extract-cos2-value" class="level3">
+<h3 class="anchored" data-anchor-id="extract-cos2-value">Extract Cos2 Value</h3>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
@@ -494,9 +456,13 @@ window.Quarto = {
 </figure>
 </div>
 </div>
+</div>
+<p>The fourth dimension also primarily captures urban outskirts, given considerable contribution of the nearest distance to post depot, garage, grave yard, warehouse and car wash.</p>
+<div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>factoextra<span class="sc">::</span><span class="fu">fviz_contrib</span>(x_train_pca, <span class="st">"var"</span>, <span class="at">axes =</span> <span class="dv">5</span>, <span class="at">top =</span> <span class="dv">10</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co">#--Dimension 5</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>factoextra<span class="sc">::</span><span class="fu">fviz_contrib</span>(x_train_pca, <span class="st">"var"</span>, <span class="at">axes =</span> <span class="dv">5</span>, <span class="at">top =</span> <span class="dv">10</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
 <div>
@@ -505,32 +471,41 @@ window.Quarto = {
 </figure>
 </div>
 </div>
+</div>
+<p>Similar to Dimension 3, Dimension 5 also mainly captures proximity to health and wellness services.</p>
+<div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>factoextra<span class="sc">::</span><span class="fu">fviz_contrib</span>(x_train_pca, <span class="st">"var"</span>, <span class="at">axes =</span> <span class="dv">6</span>, <span class="at">top =</span> <span class="dv">10</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co">#--Dimension 6</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>factoextra<span class="sc">::</span><span class="fu">fviz_contrib</span>(x_train_pca, <span class="st">"var"</span>, <span class="at">axes =</span> <span class="dv">6</span>, <span class="at">top =</span> <span class="dv">10</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="pca_files/figure-html/unnamed-chunk-9-3.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="pca_files/figure-html/unnamed-chunk-11-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
+</div>
+<p>Dimension 6 represents a mix of local commerce, social, and religious activities, indicating places from a well-rounded urban environment with essential services and amenities.</p>
+<div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>factoextra<span class="sc">::</span><span class="fu">fviz_contrib</span>(x_train_pca, <span class="st">"var"</span>, <span class="at">axes =</span> <span class="dv">7</span>, <span class="at">top =</span> <span class="dv">10</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co">#--Dimension 7</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>factoextra<span class="sc">::</span><span class="fu">fviz_contrib</span>(x_train_pca, <span class="st">"var"</span>, <span class="at">axes =</span> <span class="dv">7</span>, <span class="at">top =</span> <span class="dv">10</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="pca_files/figure-html/unnamed-chunk-9-4.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="pca_files/figure-html/unnamed-chunk-12-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
 </div>
-<p>The</p>
+<p>Finally, Dimension 7 shows a good representation of public amenities, including library, park and toilets, although it evidently has captured high street setting, given the contribution by dentist, bank, convenience store, and real estate agencies.</p>
 
 
+</section>
 </section>
 
 </main> <!-- /main -->

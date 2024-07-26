@@ -97,6 +97,7 @@ Both outcome and predictor variables were split into test and train sets randoml
 ```{r}
 #--Apply PCA
 x_train_pca <- FactoMineR::PCA(x_train[-c(1,2)], graph = FALSE, scale.unit = TRUE)
+saveRDS(x_train_pca, "pca_model.RDS")
 
 #--Check cumulative percentage of variance
 factoextra::fviz_eig(x_train_pca, addlabels = TRUE)
@@ -188,3 +189,9 @@ Dimension 6 represents a mix of local commerce, social, and religious activities
 factoextra::fviz_contrib(x_train_pca, "var", axes = 7, top = 10)
 ```
 Finally, Dimension 7 shows a good representation of public amenities, including library, park and toilets, although it evidently has captured high street setting, given the contribution by dentist, bank, convenience store, and real estate agencies.
+
+
+```{r}
+#--Save the workspace image for convenience
+save.image("pca_workspace.RData")
+```

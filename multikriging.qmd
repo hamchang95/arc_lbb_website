@@ -16,3 +16,38 @@ format:
 editor_options: 
   chunk_output_type: console
 ---
+
+## Introduction
+
+We have so far created a kriging model that predicts the number of anti-social behaviour (ASB) cases by location. We will build onto the model we already created by adding the distance to nearest places of interest (POI) to the predictor. Nonetheless, there were more than 40 different type of POIs, which may be correlated to one another. This is when PCA becomes handy. We will utilise our PCA model to summarise POIs into a few principal components, which will be then included in the updated, multi-variate kriging model in addition to location pair of ASB.
+
+## Set Up
+
+We will load workspace from `PCA.qmd` for convenience. Please refer to PCA page to review how the model was built.
+
+```{r}
+#--Load / install necessary packages
+pacman::p_load(sp, sf, data.table, rio, here, leaflet, gstat, tidyverse, Metrics,
+ scales, corrr, ggcorrplot, FactoMineR, factoextra, corrplot)
+
+#--Load workspace from PCA.qmd
+load("pca_workspace.RData")
+```
+
+### Finalise Pre-Processing of PCA Model
+```{r}
+#--Add coordinates to the PCA-transformed data
+x_train_pred_df <- cbind(x_train_pred_df, x = x_train$x, y = x_train$y)
+x_test_pred_df <- cbind(x_test_pred_df, x = x_test$x, y = x_test$y)
+
+#--Convert to spatial data frames
+coordinates(x_train_pred_df) <- ~ x + y
+coordinates(x_test_pred_df) <- ~ x + y
+proj4string(x_train_pred_df) <- CRS("+init=epsg:27700")
+proj4string(x_test_pred_df) <- CRS("+init=epsg:27700")
+```
+
+Coordinates have been added to both train and test set of predictors. They were also converted to sp's spatial data frames.
+
+## Kriging
+
