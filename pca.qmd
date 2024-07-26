@@ -122,7 +122,7 @@ x_test_pred_df <- cbind(x_test_pred_df, x = x_test$x, y = x_test$y)
 ```
 
 ## Understand Output
-Now that the predictor variables have been summarised to 7 principal components. We will try to understand what each component best represent. We can investigate how much each predictor variable contributed to the construction of a principal component by looking into $$cos^2$$ value of the PCA model.
+Now that the predictor variables have been summarised to 7 principal components. We will try to understand what each component best represent. We can investigate how much each predictor variable contributed to the construction of a principal component by looking into $cos^2$ value of the PCA model.
 ```{r}
 #--Extract information about variables
 var <- get_pca_var(x_train_pca)
@@ -163,9 +163,26 @@ Distance to nearest bar, clinic, doctor's office, houseware shop, aesthetics sho
 ```{r}
 #--Dimension 4
 factoextra::fviz_contrib(x_train_pca, "var", axes = 4, top = 10)
-factoextra::fviz_contrib(x_train_pca, "var", axes = 5, top = 10)
-factoextra::fviz_contrib(x_train_pca, "var", axes = 6, top = 10)
-factoextra::fviz_contrib(x_train_pca, "var", axes = 7, top = 10)
 ```
 
-The 
+The fourth dimension also primarily captures urban outskirts, given considerable contribution of the nearest distance to post depot, garage, grave yard, warehouse and car wash.
+
+```{r}
+#--Dimension 5
+factoextra::fviz_contrib(x_train_pca, "var", axes = 5, top = 10)
+```
+
+Similar to Dimension 3, Dimension 5 also mainly captures proximity to health and wellness services. 
+
+
+```{r}
+#--Dimension 6
+factoextra::fviz_contrib(x_train_pca, "var", axes = 6, top = 10)
+```
+Dimension 6 represents a mix of local commerce, social, and religious activities, indicating places from a well-rounded urban environment with essential services and amenities.
+
+```{r}
+#--Dimension 7
+factoextra::fviz_contrib(x_train_pca, "var", axes = 7, top = 10)
+```
+Finally, Dimension 7 shows a good representation of public amenities, including library, park and toilets, although it evidently has captured high street setting, given the contribution by dentist, bank, convenience store, and real estate agencies.
