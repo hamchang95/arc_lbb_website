@@ -23,19 +23,87 @@ We have so far created a kriging model that predicts the number of anti-social b
 
 ## Set Up
 
-We will load workspace from `PCA.qmd` for convenience. Please refer to PCA page to review how the model was built.
-
+The first steps of pre-processing data for PCA, splitting data into test and train sets for evaluation, and creating a PCA model will be similar to what we did in PCA page.
 ```{r}
 #--Load / install necessary packages
-pacman::p_load(sp, sf, data.table, rio, here, leaflet, gstat, tidyverse, Metrics,
- scales, corrr, ggcorrplot, FactoMineR, factoextra, corrplot)
+rm(list = ls())
+pacman::p_load(sp, sf, data.table, rio, here, leaflet, gstat, tidyverse, Metrics, scales, corrr, ggcorrplot, FactoMineR, factoextra, corrplot)
 
-#--Load workspace from PCA.qmd
-load("pca_workspace.RData")
+#--Import Barnet shapefile
+bnt_shp <- sf::st_read(here("1_data", "9_geo", "bnt_lad.json"), crs = 4326) |> 
+    st_make_valid()
+
+#--Import street-level asb data
+asb <- import(here("3_output", "asb_with_nearest_distances.csv"))
+
+#--Calculate count of crimes per location coordinate
+asb_count <- asb |> 
+    group_by(location.latitude, location.longitude) |>
+    count() |> 
+    ungroup() |> 
+    inner_join(asb, by = c('location.latitude', 'location.longitude')) |> 
+    distinct(location.latitude, location.longitude, .keep_all = TRUE) |>
+    group_by(location.latitude, location.longitude) |>
+    mutate(location_id = cur_group_id()) |>
+    ungroup()
+
+names(asb_count)[grepl('longitude', names(asb_count))] <- 'x' 
+names(asb_count)[grepl('latitude', names(asb_count))] <- 'y' 
+
+#--Get sf version and reproject to OSGB36
+asb_count_sf <- asb_count |> 
+    st_as_sf(coords = c('x', 'y'), crs = 4326) |>
+    st_transform(27700) 
+
+asb_count_sf <- asb_count_sf |>
+    mutate(x = st_coordinates(asb_count_sf)[, 1],
+           y = st_coordinates(asb_count_sf)[, 2])
+
+#--Change the sf back to df
+asb_count <- st_drop_geometry(asb_count_sf)
+
+#--Get only numerical version
+asb_x <- asb_count |> select(x, y, starts_with('d'))
+asb_y <- asb_count |> select(x, y, n)
 ```
 
-### Finalise Pre-Processing of PCA Model
+### Split ASB Data into Test and Train Sets
 ```{r}
+#--Create random indices
+total_rows <- nrow(asb_count)
+sample_size <- round(total_rows * 0.75)
+
+set.seed(1234) # for reproducibility
+random_indices <- sample(1:total_rows, sample_size, replace = FALSE)
+
+#--Create test sets using the random indices
+x_train <- asb_x[dimnames(asb_x)[[1]] %in% random_indices,] |>
+    mutate(across(where(is.numeric), ~round(.x, 2)))
+
+y_train <- asb_y[dimnames(asb_y)[[1]] %in% random_indices,]|>
+    mutate(across(where(is.numeric), ~round(.x, 2)))
+
+#--Create training sets by excluding the indices used for the test set
+x_test <- asb_x[!dimnames(asb_x)[[1]] %in% random_indices,]|>
+    mutate(across(where(is.numeric), ~round(.x, 2)))
+
+y_test <- asb_y[!dimnames(asb_y)[[1]] %in% random_indices,] |>
+    mutate(across(where(is.numeric), ~round(.x, 2)))
+```
+
+### Run PCA
+```{r}
+#--Apply PCA
+x_train_pca <- PCA(x_train[-c(1,2)], graph = FALSE, scale.unit = TRUE, ncp = 7)
+
+#--Predict 
+x_train_pred <- FactoMineR::predict.PCA(x_train_pca, x_train[-c(1,2)])
+x_test_pred <- FactoMineR::predict.PCA(x_train_pca, x_test[-c(1,2)])
+
+#--Extract PCA-transformed data
+x_train_pred_df <- as.data.frame(x_train_pred$coord)
+x_test_pred_df <- as.data.frame(x_test_pred$coord)
+
 #--Add coordinates to the PCA-transformed data
 x_train_pred_df <- cbind(x_train_pred_df, x = x_train$x, y = x_train$y)
 x_test_pred_df <- cbind(x_test_pred_df, x = x_test$x, y = x_test$y)
@@ -45,9 +113,519 @@ coordinates(x_train_pred_df) <- ~ x + y
 coordinates(x_test_pred_df) <- ~ x + y
 proj4string(x_train_pred_df) <- CRS("+init=epsg:27700")
 proj4string(x_test_pred_df) <- CRS("+init=epsg:27700")
+
+#--Combine PCA-transformed predictors with the target variable for training data
+train_data <- cbind(x_train_pred_df, n = y_train$n)
+names(train_data)[ncol(train_data)] <- "n" 
+
+#--Combine PCA-transformed predictors with the target variable for test data
+test_data <- cbind(x_test_pred_df, n = y_test$n)
+names(test_data)[ncol(test_data)] <- "n" 
 ```
 
 Coordinates have been added to both train and test set of predictors. They were also converted to sp's spatial data frames.
 
-## Kriging
+## Kriging over Test Set
+Similar to how we built the univariate kriging model, we will build a kriging model over test set to eventually evaluate the accuracy of the model.
+```{r}
+#--Define formula
+dims <- paste(paste0("Dim.", 1:7), collapse = " + ")
+fx <- as.formula(paste0("log(n)~ x + y +", dims))
 
+#--Create variogram using PCA-transformed predictors
+vgm <- variogram(
+    fx, 
+    data = train_data, 
+    width = 1)
+
+#--Fit variogram model
+fit <- fit.variogram(vgm, vgm(c("Gau", "Sph", "Mat", "Exp")), fit.kappa = TRUE)
+
+#--Plot variogram model fit
+plot(vgm, main = "Variogram Model Fit", cutoff = max(vgm$dist))
+plot(fit, main = "Variogram Model Fit", cutoff = max(vgm$dist))
+
+#--Kriging over the test set
+test_kriged <- krige(
+    fx, 
+    train_data, 
+    test_data, 
+    model = fit)
+```
+
+### Plot 
+```{r}
+#--Store results of test set from kriging model
+test_sf <- st_as_sf(test_data, coords = c("x", "y"), crs = 27700)
+test_sf$krige_pred <- exp(test_kriged@data$var1.pred)
+test_sf$variance <- exp(test_kriged@data$var1.var)
+
+#--Create static map
+ggplot() +
+  geom_sf(data = bnt_shp, alpha = 0, lwd = 1.5, color = "black")+
+  geom_sf(data = test_sf, aes(colour = krige_pred)) +
+  scale_colour_gradient(low = "blue", high = "red", name = "Predicted Value") +
+  ggtitle("Hotspot Map for Kriged Data") +
+  theme_minimal()
+
+#--Create interactive map
+test_sf$error <- test_sf$n - test_sf$krige_pred
+
+test_sf_wgs84 <- st_transform(test_sf, 4326) 
+
+test_sf_wgs84 <- test_sf_wgs84 |>
+    mutate(x = st_coordinates(test_sf_wgs84)[, 1],
+           y = st_coordinates(test_sf_wgs84)[, 2]) |>
+    mutate(pred_popup = paste0("Predicted: ", as.character(round(krige_pred, 2)))) |>
+    mutate(error_popup =paste0("Error: ", as.character(round(error, 2)))) 
+
+pal_test <- colorNumeric(palette = c("green", "red"), domain = test_sf_wgs84$krige_pred)
+pal_test_error <- colorNumeric(palette = c("green", "red"), domain = test_sf_wgs84$error)
+
+leaflet(test_sf_wgs84) |> 
+    leaflet::addPolygons(data = bnt_shp, fillOpacity = 0, col = "black") |>
+    leaflet::addTiles() |>
+    leaflet::addCircles(
+      color = ~pal_test(test_sf_wgs84$krige_pred),
+      popup = ~pred_popup,
+      opacity = 0.6) |>
+    leaflet::addLegend('bottomright',
+            pal =pal_test,
+            values = ~krige_pred,
+            title = 'Predicted Number of ASB',
+            opacity = 1) 
+```
+
+The multivariate kriging model gave a predicted count of ASB ranging from 1.3 to 25.5. The highest prediction was estimated to be in Colindale, near Colindale Avenue with proximity to car parks and large grocery stores. A couple more hot spots were indentified in Colindale. What's also interesting to be looked into is how much the model's prediction deviated from the actual count of ASB.
+
+### Evaluate Model Performance
+```{r}
+#--Calculate RMSE
+rmse <- round(rmse(test_sf$n, test_sf$krige_pred), 2)
+
+#--Plot
+ggplot(test_sf, aes(x = n, y = krige_pred)) +
+  geom_point(alpha = 0.6) +
+  theme_minimal() +
+  labs(x = "Actual Number of ASB", y = "Predicted Number of ASB") +
+  ggtitle(label = "Actual vs Predicted Number of ASB from Kriging Model", subtitle = paste0("Root Mean Squared Error: ", rmse))
+
+#--Get summary of actual & predicted values
+summary(test_sf$n)
+summary(test_sf$krige_pred)
+
+#--Get a histogram of actual count
+hist(test_sf$n)
+```
+
+The plot shows that the model predicts the low number of crime fairly well, which is a good news as most of the actual ASB cont in test set are low, under 20. Nonetheless, it does not predict the high ASB count well. 
+
+```{r}
+#--Group error
+test_sf_wgs84 <- test_sf_wgs84 %>%
+    mutate(error_group = case_when(
+        abs(error) < 10 ~ "Moderate",
+        error <= -10 ~ "Over-estimated",
+        error >=10 ~ "Under-estimated"
+    ))
+
+#--Create interactive map
+leaflet(test_sf_wgs84) |> 
+    leaflet::addPolygons(data = bnt_shp, fillOpacity = 0, col = "black") |>
+    leaflet::addTiles() |>
+    leaflet::addCircles(
+      data = subset(test_sf_wgs84, error_group == "Over-estimated"),
+      color = ~pal_test_error(error),
+      popup = ~error_popup,
+      opacity = 0.6,
+      group = "Over-estimated") |>
+    leaflet::addCircles(
+      data = subset(test_sf_wgs84, error_group == "Under-estimated"),
+      color = ~pal_test_error(error),
+      popup = ~error_popup,
+      opacity = 0.6,
+      group = "Under-estimated") |>
+    leaflet::addCircles(
+      data = subset(test_sf_wgs84, error_group == "Moderate"),
+      color = ~pal_test_error(error),
+      popup = ~error_popup,
+      opacity = 0.6,
+      group = "Moderate") |>
+    leaflet::addLegend(
+            'bottomright',
+            pal =pal_test_error,
+            values = ~error,
+            title = 'Actual - Predicted',
+            opacity = 1) %>%
+    leaflet::addLayersControl(overlayGroups = test_sf_wgs84$error_group, options = layersControlOptions(collapsed = FALSE))
+
+
+#--Get summary of error
+summary(test_sf_wgs84$error)
+
+#--Return the row where error is at its maximum
+test_sf_wgs84 %>%
+    slice_max(error)
+
+test_sf_wgs84 %>%
+    slice_min(error)
+```
+
+The error, which is the difference between actual and predicted count of ASB, ranges from -20.5 to 159.5 and has a median of -0.1 a mean of 3.3. Assuming that the absolute error lower than 10 is a moderate estimation, the model fairly predicts the number of ASB.
+
+The only case where the model predicted considerably more than the actual number of ASB was the aforementioned, highest predicted value around Colindale Avenue. The model predicted about 20 ASB cases more than the actual.
+
+The greater problem lied in under-estimation. That is, the model wasn't able to capture high ASB crime spots. Greatest error was spotted along North Circular Road in East Finchley near St Pancras and Islington Cemetery. While the model predicted about 3.5 ASB crimes based on places around, there were 163 ASB crimes over three years. One possible explanation of such a deviation could be that the model is missing places that would have contributed to the model's performance. Also, given that the point is within a residential neighbourhood, the population density may be high, leading to a high figure of ASB count.
+
+## Kriging over Grid
+
+Like what we did in Kriging tutorial, we will create a grid of 100m x 100m first so that kriging model is able to interpolate over the unknown points within the borough where ASB crime hasn't taken place.
+
+### Create Grid
+```{r}
+#--Make grid
+grid <- bnt_shp |> 
+    st_transform(27700) |> 
+    st_make_grid(cellsize = units::as_units(100, "m"), what = "centers") |>
+    st_as_sf() %>%
+    st_transform(4326)
+
+#--Get centroid of each grid cell
+grid_centroid <- grid |> 
+    st_centroid()
+
+grid_cen_xy <- data.frame(grid_centroid) |> 
+    mutate(x = st_coordinates(grid_centroid)[, 1],
+           y = st_coordinates(grid_centroid)[, 2]) |>
+    st_as_sf(coords = c("x", "y"), crs = 4326)
+
+grid_cen_xy <- st_as_sf(grid_cen_xy, coords = c("x", "y"), crs = st_crs(bnt_shp))
+
+#--Filter grid points to include only those within the Barnet polygon
+result <- st_within(grid_cen_xy, bnt_shp) |>
+    as.data.frame()
+
+grid_bnt <- grid_cen_xy |> 
+    mutate(row.id = 1:nrow(grid_cen_xy)) |> 
+    left_join(result) |> 
+    filter(!is.na(col.id))
+
+#--Check
+ggplot() +
+    geom_sf(data = grid_bnt, alpha = 0.3, colour = "#00AFA9") +
+    geom_sf(data = bnt_shp, alpha = 0, lwd = 2, colour = "black") +
+    ggtitle("All the points in the grids within Barnet boundary") +
+    theme_minimal()
+```
+
+### Pre-Process Grid & POIs 
+```{r}
+#--Manage columns
+grid_bnt_osgb <- grid_bnt |> 
+    select(-row.id, -col.id) |> 
+    st_transform(27700)
+
+grid_bnt_osgb <- grid_bnt_osgb |>
+    mutate(x = st_coordinates(grid_bnt_osgb)[, 1],
+           y = st_coordinates(grid_bnt_osgb)[, 2])
+
+#--Reproject POIs to same CRS 
+poi_bnt_fin <- readRDS("poi_bnt_fin.RDS")
+poi_bnt_osgb <- lapply(poi_bnt_fin, function(x) st_transform(x, 27700))
+
+#--Convert POI to matrix
+poi_coords_list <- lapply(poi_bnt_osgb, st_coordinates)
+
+#--Convert grid_bnt to df
+grid_coords <- grid_bnt_osgb |>
+    st_drop_geometry()
+```
+
+### Calculate Nearest Distance from Grid Cell to Each Type of POI
+```{r}
+#--Extract x & y of both POI and grid 
+poi_x <- lapply(poi_coords_list, function(x) x[, 1])  # Extract x-coordinates of POIs
+poi_y <- lapply(poi_coords_list, function(x) x[, 2])  # Extract y-coordinates of POIs
+grid_x <- grid_coords[, 1]  # Extract x-coordinates of grid points
+grid_y <- grid_coords[, 2]  # Extract y-coordinates of grid points
+
+#--Initialize distances list with empty lists
+min_distances <- matrix(nrow = length(grid_x), ncol = length(poi_x))  # Pre-allocate with NAs
+
+#--Loop minimum distance calculation 
+for (i in seq_along(poi_x)) {
+  # Pre-allocate squared distances
+  squared_distances <- matrix(nrow = length(grid_x), ncol = length(poi_x[[i]]))
+  
+  for (j in seq_along(poi_x[[i]])) {
+    squared_distances[, j] <- sqrt((grid_x - poi_x[[i]][j])^2 + (grid_y - poi_y[[i]][j])^2)
+  }
+  
+  # Calculate minimum distance for each grid point for current POI type 
+  min_distances[, i] <- apply(squared_distances, 1, min)  # Store minimum for current POI type
+}
+
+#--Convert the min_distances matrix to a data frame for easier use
+min_distances_df <- as.data.frame(min_distances)
+names(min_distances_df) <- paste0("d_", names(poi_bnt_fin))
+
+#--Add distance columns to the grid_sf
+grid_bnt_osgb_dist <- cbind(grid_bnt_osgb, min_distances_df)
+names(grid_bnt_osgb_dist)[3:50] <- names(min_distances_df)
+
+#--Convert sf to df
+grid_bnt_df <- st_drop_geometry(grid_bnt_osgb_dist)
+```
+
+### Predict Principal Components for Grid Data
+```{r}
+#--Predict PCA components for grid data
+grid_pca_pred <- predict.PCA(x_train_pca, newdata = grid_bnt_df[,-c(1:2)])
+
+#--Add PCA components to grid data
+grid_pca_df <- as.data.frame(grid_pca_pred$coord)
+grid_data <- cbind(grid_bnt_df, grid_pca_df)
+
+#--Convert grid data to SpatialPointsDataFrame
+coordinates(grid_data) <- ~ x + y
+proj4string(grid_data) <- CRS("+init=epsg:27700")
+```
+
+### Krige over the Grid
+```{r}
+#--Kriging over the grid
+bnt_kriged <- krige(
+    fx,
+    train_data, 
+    grid_data,
+    model = fit)
+
+#--Plot
+grid_fin <- st_as_sf(grid_data, coords = c("x", "y")) |> 
+    st_transform(27700)
+grid_fin$krige_pred <- exp(bnt_kriged@data$var1.pred)
+grid_fin$variance <- exp(bnt_kriged@data$var1.var)
+grid_fin$x <- st_coordinates(grid_fin)[, 1]
+grid_fin$y <- st_coordinates(grid_fin)[, 2]
+
+ggplot(data = grid_fin, aes(x, y)) +
+  geom_point(aes(colour = krige_pred)) +
+  scale_colour_gradient(low = "green", high = "red", name = "Predicted Value") +
+  ggtitle("Hotspot Map for Kriged Data") +
+  theme_minimal()
+
+#--Plot over leaflet
+grid_fin_wgs84 <- st_transform(grid_fin, 4326) 
+
+grid_fin_wgs84 <- grid_fin_wgs84 |>
+    mutate(x = st_coordinates(grid_fin_wgs84)[, 1],
+           y = st_coordinates(grid_fin_wgs84)[, 2]) |>
+    mutate(pred_popup = paste0("Predicted: ", as.character(round(krige_pred, 2))))
+
+pal <- colorNumeric(palette = c("green", "red"), domain = grid_fin_wgs84$krige_pred)
+
+leaflet(grid_fin_wgs84) |> 
+    leaflet::addTiles() |>
+    leaflet::addCircles(
+      color = ~pal(grid_fin_wgs84$krige_pred),
+      popup = ~pred_popup,
+      opacity = 0.6) |>
+    leaflet::addLegend('bottomright',
+            pal =pal,
+            values = ~krige_pred,
+            title = 'Predicted Value',
+            opacity = 1)
+
+```
+
+## Evaluate Test & Train Error
+We have to be critical about how we specify models. As we make our model complex, the prediction error will likely decrease. One way to achieve this is to increase the train set size - error will decrease as there are more data for the model to learn from. Nonetheless, this may come at the price of overfitting. While training error would decrease, test error would increase. On the other hand, underfitting can be an issue when the model is not complex enough with a high training error. Hence, it is crucial to find a point where both training and test errors are acceptable.
+
+With our kriging model, one question comes to mind. Does the model really need all 7 principal components? Whilst we characterised all 7 principal components, the model may not need all 7 of them to perform similarly and it may be more easily interpretable with fewer compoents, leading to actionable key insights.
+
+### Define the function: `krige_with_pca()`
+```{r}
+krige_with_pca <- function(number_of_pc){
+    ###### PCA ######
+    #--Apply PCA  with the selected number of components
+    x_train_pca <- PCA(x_train[-c(1,2)], graph = FALSE, scale.unit = TRUE, ncp = number_of_pc)
+
+    #--Predict 
+    x_train_pred <- FactoMineR::predict.PCA(x_train_pca, x_train[-c(1,2)])
+    x_test_pred <- FactoMineR::predict.PCA(x_train_pca, x_test[-c(1,2)])
+
+    #--Extract PCA-transformed data
+    x_train_pred_df <- as.data.frame(x_train_pred$coord)
+    x_test_pred_df <- as.data.frame(x_test_pred$coord)
+
+    #--Add coordinates to the PCA-transformed data
+    x_train_pred_df <- cbind(x_train_pred_df, x = x_train$x, y = x_train$y)
+    x_test_pred_df <- cbind(x_test_pred_df, x = x_test$x, y = x_test$y)
+
+    #--Convert to spatial data frames
+    coordinates(x_train_pred_df) <- ~ x + y
+    coordinates(x_test_pred_df) <- ~ x + y
+    proj4string(x_train_pred_df) <- CRS("+init=epsg:27700")
+    proj4string(x_test_pred_df) <- CRS("+init=epsg:27700")
+
+    ###### KRIGING ######
+    #--Combine PCA-transformed predictors with the target variable for training data
+    train_data <- cbind(x_train_pred_df, n = y_train$n)
+    names(train_data)[ncol(train_data)] <- "n" 
+
+    #--Combine PCA-transformed predictors with the target variable for test data
+    test_data <- cbind(x_test_pred_df, n = y_test$n)
+    names(test_data)[ncol(test_data)] <- "n"
+
+    #--Create variogram using PCA-transformed predictors
+    dim_list <- paste0("Dim.", 1:number_of_pc, collapse = " + ")
+
+    fx <- as.formula(paste("log(n) ~ x + y +", dim_list))
+
+    vgm <- variogram(
+        fx, 
+        data = train_data, 
+        width = 1)
+
+    #--Fit variogram model
+    fit <- fit.variogram(vgm, vgm(c("Gau", "Sph", "Mat", "Exp")), fit.kappa = TRUE)
+
+    #--Kriging over the test set
+    kriged <- krige(
+        fx, 
+        train_data, 
+        test_data, 
+        model = fit)
+
+    #--Kriging over the train set
+    kriged.train <- krige(
+        fx, 
+        train_data, 
+        train_data, 
+        model = fit)
+
+    ###### EVALUATION #######
+    #--RMSE
+    rmse_test <- rmse(test_data$n, exp(kriged@data$var1.pred))
+    rmse_train <- rmse(train_data$n, exp(kriged.train@data$var1.pred))
+
+    #--MAE
+    mae_test <- mae(test_data$n, exp(kriged@data$var1.pred))
+    mae_train <- mae(train_data$n, exp(kriged.train@data$var1.pred))
+
+    #--Average Error
+    error_test <- mean(test_data$n - exp(kriged@data$var1.pred))
+    error_train <- mean(train_data$n - exp(kriged.train@data$var1.pred))
+
+    #--Map
+    map_test_train <- function(data) {
+        map <- data |> 
+            st_as_sf(coords = c("x", "y"), crs = 27700) |>
+            ggplot() + 
+            geom_sf()
+
+        return(map)
+    }
+    
+    test_train <- list(x_test, x_train, y_test, y_train)
+
+    map_list <- lapply(test_train, map_test_train)
+
+    return(list(test_krige = kriged,
+                train_krige = kriged.train,
+                rmse_test = rmse_test,
+                rmse_train = rmse_train,
+                mae_test = mae_test,
+                mae_train = mae_train,
+                error_test = error_test,
+                error_train = error_train,
+                map = map_list))
+}
+
+```
+
+### Initialise Vector & Loop `krige_with_pca()`
+```{r}
+#--Initialise
+result <- vector("list", 7)
+
+#--Get results
+for (i in 1:7){
+    result[[i]] <- krige_with_pca(number_of_pc = i)
+    
+    print(paste0("Iteration ", i, " done!"))
+}
+```
+
+### Parse Errors
+```{r}
+#--Extract error-related info
+rmse <- vector("list", 2)
+mae <- vector("list", 2)
+error <- vector("list", 2)
+
+for (i in 1:7){
+    rmse[[1]][[i]] <- result[[i]][["rmse_train"]]
+    rmse[[2]][[i]] <- result[[i]][["rmse_test"]]
+    
+    mae[[1]][[i]] <- result[[i]][["mae_train"]]
+    mae[[2]][[i]] <- result[[i]][["mae_test"]]
+
+    error[[1]][[i]] <- result[[i]][["error_train"]]
+    error[[2]][[i]] <- result[[i]][["error_test"]]
+}
+
+rmse_df <- map(rmse, ~as.matrix(.x, nrow = 7) |> 
+                        as.data.frame() |> 
+                        mutate(ncp = 1:7, .before = everything()) |> 
+                        rename(RMSE = 2) |> 
+                        mutate(RMSE = as.numeric(RMSE)))
+
+mae_df <- map(mae, ~as.matrix(.x, nrow = 7) |> 
+                        as.data.frame() |> 
+                        mutate(ncp = 1:7, .before = everything()) |> 
+                        rename(MAE = 2) |> 
+                        mutate(MAE = as.numeric(MAE)))
+
+error_df <- map(error, ~as.matrix(.x, nrow = 7) |> 
+                        as.data.frame() |> 
+                        mutate(ncp = 1:7, .before = everything()) |> 
+                        rename(ERROR = 2)|> 
+                        mutate(ERROR = as.numeric(ERROR)))
+
+```
+
+### Visualise & Compare Errors
+```{r}
+#--Plot errors 
+p_error_list <- vector("list", 3)
+
+for (i in 1:2){
+    p_error_list[[1]][[i]] <- ggplot(rmse_df[[i]], aes(x = ncp, y = RMSE)) +
+    geom_point() +
+    geom_line() +
+    scale_x_continuous(breaks = 1:7)+
+    theme_minimal()
+
+    p_error_list[[2]][[i]] <- ggplot(mae_df[[i]], aes(x = ncp, y = MAE)) +
+    geom_point() +
+    geom_line() +
+    scale_x_continuous(breaks = 1:7)+
+    theme_minimal()
+
+    p_error_list[[3]][[i]] <- ggplot(error_df[[i]], aes(x = ncp, y = ERROR)) +
+    geom_point() +
+    geom_line() +
+    scale_x_continuous(breaks = 1:7)+
+    theme_minimal()
+}
+
+cowplot::plot_grid(
+  p_error_list[[1]][[1]],
+  p_error_list[[2]][[1]],
+  p_error_list[[3]][[1]],
+  p_error_list[[1]][[2]],
+  p_error_list[[2]][[2]],
+  p_error_list[[3]][[2]])
+  
+```
