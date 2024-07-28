@@ -1,0 +1,39 @@
+---
+title: "Conclusion"
+---
+
+## Summary
+
+-   Anti-social behaviour (N = 25,551) was the most prevalent type of crime in Barnet between April 2021 and March 2024. However, in the last 12 months between April 2023 and March 2024, violent crime (N = 7,217) was the most common type of crime, followed by anti-social behaviour (N = 6,912), which raises concerns.
+
+-   Only anti-social behaviour of all crime types demonstrated a statistically significant spatial autocorrelation. That is, areas nearby locations where anti-social behaviour took place are also likely to have anti-social behaviour. Changing the threshold of distance for classifying neighbouring points did not change the finding.
+
+-   Distances to each nearest place of interest were summarised into seven components by PCA. Evaluation of multivariate kriging model later showed that four components are sufficient for the model to perform. The four components primarily captured urban outskirts, high streets and healthcare settings.
+
+-   Kriging model predicted the number of anti-social behavoiur, ranging from 1.3 to 25.5. When the prediction was compared with the actual count of anti-social behaviour, it fairly captured the locations where anti-social behaviour did not happen too frequently. Nonetheless, the model poorly captured hot spots. This could be due to high resident or transient population density in the area.
+
+-   Amongst linear regression, support vector machine and random forest models, random forest performed best. Distance to nearest clothes shop, bicycle parking spaces, houseware stores, car parking lots, bank, pharmacy, convenience store, gas station, restaurant, and community centre were the ten most important features in the random forest model. However, similar to kriging model, the random forest model was not able to capture hot spots of anti-social behaviour. Given that the locations with highest error observed were in either blocks of flats or near tube station, it is also likely that the model's underestimation arises from the lack of adjustment of crime count by population density.
+
+## Limitation & Future Project Direction
+
+1.  **Lack of adjustment for population density**
+    -   Adjustment by population traffic with footfall data
+    -   Subset crime points around tube stations and adjust traffic volume with tap in and out data by TfL
+2.  **Weak spatial autocorrelation**
+    -   Subset different time range or different areas
+3.  **Data Quality**
+    -   **Crime data**
+        -   Biased patterns in patrol, leading to more records of crime near police station
+        -   Retroactive update of crime count
+            -   Limiting the data import to the second or third latest month
+    -   **Places data**
+        -   May not be totally inclusive of terrestrial information
+            -   Scoping places with safety neighbourhood team
+
+## Strength & Lessons Learned
+
+1.  Both kriging and random forest models were able to identify cold spots of anti-social behaviour within the London Borough of Barnet. This may be of use to Metropolitan Police to optimise resource allocation.
+2.  Lesson learned include:
+    -   Importance of version control & utilising `saveRDS()`
+
+    -   Importance of evaluation to test model performance
