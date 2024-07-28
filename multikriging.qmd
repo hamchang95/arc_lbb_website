@@ -424,7 +424,7 @@ grid_fin_wgs84 <- grid_fin_wgs84 |>
 
 pal <- colorNumeric(palette = c("green", "red"), domain = grid_fin_wgs84$krige_pred)
 
-leaflet(grid_fin_wgs84) |> 
+m <- leaflet(grid_fin_wgs84) |> 
     leaflet::addTiles() |>
     leaflet::addCircles(
       color = ~pal(grid_fin_wgs84$krige_pred),
@@ -436,6 +436,10 @@ leaflet(grid_fin_wgs84) |>
             title = 'Predicted Value',
             opacity = 1)
 
+m
+
+#htmlwidgets::saveWidget(m, file = "multi_krige_map.html")
+#saveRDS(m, here("1_data", "multi_krige_map.RDS"))
 ```
 
 ## Evaluate Test & Train Error
@@ -444,6 +448,7 @@ We have to be critical about how we specify models. As we make our model complex
 With our kriging model, one question comes to mind. Does the model really need all 7 principal components? Whilst we characterised all 7 principal components, the model may not need all 7 of them to perform similarly and it may be more easily interpretable with fewer compoents, leading to actionable key insights.
 
 ### Define the function: `krige_with_pca()`
+The function, `krige_with_pca()`, will create PCA and kriging models and calculate test and train errors with three metrics: RMSE (root mean square error), MAE (mean absolute error) and ERROR (actual - predicted).
 ```{r}
 krige_with_pca <- function(number_of_pc){
     ###### PCA ######
@@ -545,6 +550,7 @@ krige_with_pca <- function(number_of_pc){
 ```
 
 ### Initialise Vector & Loop `krige_with_pca()`
+The function will now be looped over different number of principal components from 1 to 7.
 ```{r}
 #--Initialise
 result <- vector("list", 7)
@@ -558,6 +564,7 @@ for (i in 1:7){
 ```
 
 ### Parse Errors
+Errors will be parsed from `result` and converted to dataframes for easier visualisation.
 ```{r}
 #--Extract error-related info
 rmse <- vector("list", 2)
@@ -620,12 +627,16 @@ for (i in 1:2){
     theme_minimal()
 }
 
+#--Combine plots
 cowplot::plot_grid(
   p_error_list[[1]][[1]],
   p_error_list[[2]][[1]],
   p_error_list[[3]][[1]],
   p_error_list[[1]][[2]],
   p_error_list[[2]][[2]],
-  p_error_list[[3]][[2]])
-  
+  p_error_list[[3]][[2]],
+  labels = c(rep("Train", 3), rep("Test", 3))
+)
 ```
+
+Train error is negligible as its value is extremely small in all types of metrics. On the other hand, test error shows some variation over different number of principal components. Keeping 4 or 6 components appears to be a reasonable choice as RMSE is fairly low with 4 or 6 components. For easier interpretation, we will choose 4 as the number of components for PCA model. 

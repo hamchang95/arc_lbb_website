@@ -65,12 +65,16 @@ m_eda <- leaflet(shared_data) |>
   leaflet::addLegend("bottomright", pal = crime_pal, values = ~category, title = "Category")
 
 #--Pull everything together
-crosstalk::bscols(
+m1 <- crosstalk::bscols(
   widths = c(12, 3, 9),
   month_slider,
   category_checkbox,
   m_eda
 )
+
+m1
+
+#saveRDS(m1, here("1_data", "m1.RDS"))
 ```
 
 ### Trend by Category
@@ -95,11 +99,15 @@ pl_trend <- plotly::plot_ly(shared_data_ct, x = ~date, y = ~n, color = ~category
                  yaxis = list(title = "Number of Crimes\n"))
 
 #--Pull everything together
-crosstalk::bscols(
+p1 <- crosstalk::bscols(
   widths = c(12, 12),
   month_slider_ct,
   pl_trend
 )
+
+p1
+
+#saveRDS(p1, here("1_data", "pl_trend.RDS"))
 ```
 
 ### Overall Frequency
@@ -119,6 +127,8 @@ pl_freq <- plot_ly(ct_crime2, x = ~stats::reorder(category, n, decreasing = TRUE
                  yaxis = list(title = "Number of Crimes\n"))
 
 pl_freq
+
+#saveRDS(pl_freq, here("1_data", "pl_freq.RDS"))
 ```
 
 #### In the last 12 months
@@ -138,4 +148,6 @@ pl_freq2 <- plot_ly(ct_crime3, x = ~stats::reorder(category, n, decreasing = TRU
                  yaxis = list(title = "Number of Crimes\n"))
 
 pl_freq2
+
+#saveRDS(pl_freq2, here("1_data", "pl_freq2.RDS"))
 ```

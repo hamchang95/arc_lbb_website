@@ -2,9 +2,6 @@
 title: "About"
 ---
 
-- Data Sourcing
-    - Police 
-    - Open Street Map
 - Data Processing 
 - EDA
 - Autocorrelation
