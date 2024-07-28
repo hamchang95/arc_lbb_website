@@ -21,8 +21,8 @@ While we've built a model so far that takes geographical information into accoun
 
 [^1]: Cichosz - Urban Crime Risk Prediction Using Point of Interest Data: <https://www.mdpi.com/2220-9964/9/7/459>
 
-##--Set Up
-###--Load ASB and Non-ASB data
+## Set Up
+### Load ASB and Non-ASB data
 ```{r}
 #--Load packages
 pacman::p_load(sf, dials,ranger, broom, kernlab, doParallel, workflowsets, rpart.plot, lubridate, here, rio, vip, ggplot2, readr, rsample, parsnip, recipes, workflows, tune, yardstick, dplyr)
