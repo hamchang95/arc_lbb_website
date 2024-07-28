@@ -369,5 +369,68 @@
     "title": "ARC-LBB",
     "section": "Footnotes",
     "text": "Footnotes\n\n\nMetropolitan Police - MPS’s use of the Risk Terrain Modelling application: https://www.met.police.uk/foi-ai/metropolitan-police/disclosure-2023/june-2023/mps-use-risk-terrain-modelling-application/↩︎\nCichosz - Urban Crime Risk Prediction Using Point of Interest Data: https://www.mdpi.com/2220-9964/9/7/459↩︎\nShah et al - Crime forecasting: a machine learning and computer vision approach to crime prediction and prevention: https://vciba.springeropen.com/articles/10.1186/s42492-021-00075-z↩︎\nYunus & Loo - London street crime analysis and prediction using crowdsourced dataset: https://www.sciencedirect.com/science/article/pii/S2772415823000160↩︎\nPolice - Street-level crimes: https://data.police.uk/docs/method/crime-street/↩︎\nOpen Street Map - Open Street Map Wiki: https://wiki.openstreetmap.org/wiki/Main_Page↩︎"
+  },
+  {
+    "objectID": "limitation.html#limitation",
+    "href": "limitation.html#limitation",
+    "title": "Conclusion",
+    "section": "Limitation",
+    "text": "Limitation\n\nData Quality\n\nBiased patterns in patrol\nTendency to be more crimes near police station"
+  },
+  {
+    "objectID": "limitation.html#strength",
+    "href": "limitation.html#strength",
+    "title": "Conclusion",
+    "section": "Strength",
+    "text": "Strength"
+  },
+  {
+    "objectID": "limitation.html#future-project",
+    "href": "limitation.html#future-project",
+    "title": "Conclusion",
+    "section": "Future Project",
+    "text": "Future Project"
+  },
+  {
+    "objectID": "ml.html",
+    "href": "ml.html",
+    "title": "Classic ML",
+    "section": "",
+    "text": "##–Introduction While we’ve built a model so far that takes geographical information into account, we’ll now build more classic machine learning models. There is a range of classic machine learning models; however, we will focus on regression, support vector machine, random forest models as they have been investigated in previous literature. 1\n##–Set Up ###–Load ASB and Non-ASB data\nCode\n#--Load packages\npacman::p_load(sf, dials,ranger, broom, kernlab, doParallel, workflowsets, rpart.plot, lubridate, here, rio, vip, ggplot2, readr, rsample, parsnip, recipes, workflows, tune, yardstick, dplyr)\n  # alternatively, tidymodels can be loaded\n\n#--Import Barnet shapefile\nbnt_shp &lt;- sf::st_read(here(\"1_data\", \"9_geo\", \"bnt_lad.json\"), crs = 4326) |&gt; \n    st_make_valid()\n#&gt; Reading layer `OS - BoundaryLine - 2022Authorities - Barnet' from data source \n#&gt;   `C:\\Users\\Hannah.Chang\\OneDrive - London Borough of Barnet\\General - I&I Hub\\02. Project Documentation\\07. Standard Projects\\ARC_LBB Website\\arc_lbb_website\\1_data\\9_geo\\bnt_lad.json' \n#&gt;   using driver `TopoJSON'\n#&gt; Simple feature collection with 1 feature and 17 fields\n#&gt; Geometry type: POLYGON\n#&gt; Dimension:     XY\n#&gt; Bounding box:  xmin: -0.3055738 ymin: 51.55528 xmax: -0.1291338 ymax: 51.67021\n#&gt; Geodetic CRS:  WGS 84\n\n#--Read in ASB data\nasb &lt;- rio::import(here(\"3_output\", \"asb_with_nearest_distances.csv\"))\n\n#--Apply basic transformation to asb\nasb &lt;- asb |&gt;\n  rename(latitude = location.latitude, longitude = location.longitude) |&gt;\n  mutate(across(where(is.character), as.factor)) |&gt;\n  select(-contains(\"id\"), -category)\n\n#--Load non-asb points (points where the count of ASB is 0)\nnon_asb &lt;- readRDS(here(\"1_data\", \"non_asb_points.RDS\"))\n\n#--Apply basic transformation to non-asb\nnon_asb &lt;- non_asb |&gt;\n  st_transform(4326) |&gt;\n  mutate(\n    longitude = st_coordinates(non_asb)[, 1],\n    latitude = st_coordinates(non_asb)[, 2]\n  )\n\n#--Count\nasb_ct &lt;- asb |&gt; \n  group_by(longitude, latitude) |&gt;\n  count() |&gt; \n  ungroup() |&gt;\n  inner_join(asb, by = c('longitude', 'latitude')) |&gt;\n  distinct(longitude, latitude, .keep_all = TRUE) |&gt;\n  select(-month)  \n\nnon_asb_ct &lt;- non_asb |&gt;\n  mutate(n = 0) |&gt;\n  mutate(longitude = st_coordinates(non_asb)[, 1],\n  latitude = st_coordinates(non_asb)[, 2]) |&gt;\n  select(-d_bridge) |&gt;\n  st_drop_geometry()\n\n#--Add row_id\nasb_ct &lt;- asb_ct |&gt;\n  mutate(row_id = 1:nrow(asb_ct), .before = everything())\n\nnon_asb_ct &lt;- non_asb_ct |&gt;\n  mutate(row_id = 1:nrow(non_asb_ct), .before = everything()) \n\n#--Combine data \nset.seed(1234) \nnon_asb_ct_sample &lt;- sample(1:5552, 3485, replace = FALSE)\n  # sampling 3485 non-asb points to match the number of asb points\nnon_asb_ct_fin &lt;- non_asb_ct[non_asb_ct_sample,]\nasb_all &lt;- rbind(asb_ct, non_asb_ct_fin)\nasb_all_sample &lt;- sample(1:6970, 6970*0.5, replace = FALSE)\n  # sampling half of all data for efficiency\nasb_all_fin &lt;- asb_all[asb_all_sample,]"
+  },
+  {
+    "objectID": "ml.html#build-models",
+    "href": "ml.html#build-models",
+    "title": "Classic ML",
+    "section": "Build Models",
+    "text": "Build Models\n\nConfigure Model Specification\n\n\nCode\n#--Define models\n#---Linear regression\nlm_spec &lt;-\n    linear_reg() |&gt;\n    set_engine('lm')\n\n#---SVM regression\nsvm_spec &lt;-\n    svm_poly(\n        cost = tune(), \n        degree = tune()\n    ) |&gt;\n    set_engine('kernlab') |&gt;\n    set_mode('regression')\n\n#---RF regression\nrf_spec &lt;-\n    rand_forest(\n        trees = 500,\n        mtry = tune(),\n        # no. of predictors that'll be randomly sampled at each split when creating the tree models\n        min_n = 10\n        # minimum no. of data points in a node required for the node to be split further\n        # the node needs to have at least min_n data points\n    ) |&gt;\n    set_engine('ranger', importance = \"impurity\") |&gt;\n    set_mode('regression')\n\n#--Create workflow\nlm_wf &lt;- workflow() |&gt;\n    add_model(lm_spec) |&gt;\n    add_recipe(asb_recipe)\n\nsvm_wf &lt;- workflow() |&gt;\n    add_model(svm_spec)|&gt;\n    add_recipe(asb_recipe)\n\nrf_wf &lt;- workflow() |&gt;\n    add_model(rf_spec)|&gt;\n    add_recipe(asb_recipe)\n\n\n\n\nDefine Grids for Hyperparameters\n\n\nCode\n#--Control settings\ndistr_grid_ctrl &lt;- \n    control_grid(\n        save_pred = TRUE, \n        save_workflow = TRUE,\n        verbose = TRUE\n    )\n\n#--Define a smaller tuning grid\nsvm_grid &lt;- grid_regular(\n  cost(range = c(-1, 1)),\n  degree(range = c(1, 3)),\n  levels = 3\n)\n\n#--Define the tuning grid for rf\nrf_grid &lt;- grid_regular(\n    mtry(range = c(1, ncol(asb_train_preprocessed)) - 1),\n    levels = 5)\n\n#--Enable parallel processing\nlibrary(doParallel)\ncl &lt;- makePSOCKcluster(detectCores() - 1)\nregisterDoParallel(cl)\n\n\n\n\nTune Models\nModel tuning can take awhile. Hence, tuned models have been loaded for efficiency. You can run the codes below #--Tune models to tune the hyperparameters of support vector machine (SVM) and random forest (RF).\n\n\nCode\n#--Load tuned models\ntuned_lm &lt;- readRDS(here(\"1_data\", \"tuned_lm.RDS\"))\ntuned_svm &lt;- readRDS(here(\"1_data\", \"tuned_svm.RDS\"))\ntuned_rf &lt;- readRDS(here(\"1_data\", \"tuned_rf.RDS\"))\n\n#--Tune models\n#tuned_lm &lt;- tune_grid(\n    #lm_wf,\n    #resamples = asb_cv,\n    #control = distr_grid_ctrl)\n\n#tuned_svm &lt;- tune_grid(\n    #svm_wf,\n    #grid = svm_grid,\n    #resamples = asb_cv, \n    #control = distr_grid_ctrl)\n\n#tuned_rf &lt;- tune_grid(\n    #rf_wf,\n    #grid = rf_grid,\n    #resamples = asb_cv, \n    #control = distr_grid_ctrl)\n\n#saveRDS(tuned_lm, here(\"1_data\", \"tuned_lm.RDS\"))\n#saveRDS(tuned_svm, here(\"1_data\", \"tuned_svm.RDS\"))\n#saveRDS(tuned_rf, here(\"1_data\", \"tuned_rf.RDS\"))\n\n#--Stop parallel processing\nstopCluster(cl)"
+  },
+  {
+    "objectID": "ml.html#compare-models",
+    "href": "ml.html#compare-models",
+    "title": "Classic ML",
+    "section": "Compare Models",
+    "text": "Compare Models\n\n\nCode\n#--Get metrics\nlm_metrics &lt;- collect_metrics(tuned_lm)\nsvm_metrics &lt;- collect_metrics(tuned_svm) \nrf_metrics &lt;- collect_metrics(tuned_rf)\n\n#--Compare RMSE of all models\nlm_best &lt;- lm_metrics |&gt; filter(.metric == \"rmse\") |&gt; arrange(mean) |&gt; slice(1)\nsvm_best &lt;- svm_metrics |&gt; filter(.metric == \"rmse\") |&gt; arrange(mean) |&gt; slice(1)\nrf_best &lt;- rf_metrics |&gt; filter(.metric == \"rmse\") |&gt; arrange(mean) |&gt; slice(1)\n\ncomp &lt;- list(lm_best, svm_best, rf_best) |&gt;\n  data.table::rbindlist(fill = TRUE) |&gt;\n  mutate(Model = c(\"Linear Regression\", \"Support Vector Machine\", \"Random Forest\"), .before = everything()) |&gt;\n  mutate(across(where(is.numeric), ~round(.x, 2))) |&gt;\n  select(-`.estimator`)\n\nnames(comp) &lt;- stringr::str_to_sentence(stringr::str_remove_all(names(comp), \"\\\\.\"))\n\ncomp_flx &lt;- flextable::flextable(comp)\ncomp_flx\n\n\nModelMetricMeanNStd_errConfigCostDegreeMtryLinear Regressionrmse10.0551.06Preprocessor1_Model1Support Vector Machinermse10.3651.17Preprocessor1_Model321Random Forestrmse10.0350.99Preprocessor1_Model10\n\n\nCode\n#saveRDS(comp_flx, here(\"1_data\", \"ml_comp_flx.RDS\"))\n\n#--Extract the best hyperparameters for rf\nbest_rf_params &lt;- select_best(tuned_rf, metric =  \"rmse\")\n\n#--Finalize the rf workflow with best parameters\nfinal_rf_wf &lt;- finalize_workflow(rf_wf, best_rf_params)\n\n#--Train the final model on the entire training dataset\nfinal_rf_fit &lt;- fit(final_rf_wf, data = asb_train_preprocessed)"
+  },
+  {
+    "objectID": "ml.html#evaluate-final-model",
+    "href": "ml.html#evaluate-final-model",
+    "title": "Classic ML",
+    "section": "Evaluate Final Model",
+    "text": "Evaluate Final Model\n\n\nCode\n#--Predict on the test data\nrf_test_predictions &lt;- predict(final_rf_fit, asb_test_preprocessed)\n\n#--Evaluate the predictions\nrf_test_results &lt;- bind_cols(asb_test_preprocessed, rf_test_predictions)\n\n#--Calculate performance metrics\nmetrics_result &lt;- rf_test_results |&gt;\n  metrics(truth = n, estimate = .pred)\n\n#--Plot the importance of features\np_vip &lt;- vip(final_rf_fit, num_features = 10) +\n  theme_minimal() +\n  ggtitle(\"Top 10 Features in Random Forest Model\")\n\np_vip\n\n\n\n\n\n\n\n\n\nCode\n#saveRDS(p_vip, here(\"1_data\", \"ml_p_vip.RDS\"))\n\n#--Plot predicted vs actual values\np_rf &lt;- rf_test_results |&gt;\n  ggplot(aes(x = n, y = .pred)) +\n  geom_point(alpha = 0.6) +\n  geom_abline(linetype = \"dashed\", color = \"red\") +\n  labs(x = \"Actual Values\", y = \"Predicted Values\") +\n  theme_minimal() +\n  ggtitle(\"Actual vs Predicted Count of ASB from Random Forest Model\")\n\np_rf\n\n\n\n\n\n\n\n\n\nCode\n#saveRDS(p_rf, here(\"1_data\", \"ml_p_rf.RDS\"))"
+  },
+  {
+    "objectID": "ml.html#analyse-outliers",
+    "href": "ml.html#analyse-outliers",
+    "title": "Classic ML",
+    "section": "Analyse Outliers",
+    "text": "Analyse Outliers\n\nValues above 50\nIn the plot above, we can see the model does not predict points with high number of ASB. So, we will explore those points on a map.\n\n\nCode\n#--Subset high values\nrf_outliers &lt;- rf_test_results |&gt;\n  mutate(row_id = 1:nrow(rf_test_results)) |&gt;\n  filter(n &gt;= 50)\n\n#--Calculate error\nasb_outliers &lt;- asb_test_preprocessed[rf_outliers$row_id,] |&gt;\n  left_join(asb_all) |&gt;\n  mutate(pred = rf_outliers$`.pred`) |&gt;\n  mutate(comparison = paste0(n, \" (actual) vs \", round(pred), \" (predicted)\")) |&gt;\n  mutate(error = round(n - pred))\n\n# Map outliers of high values\npal_asb &lt;- leaflet::colorNumeric(palette = 'RdYlGn', asb_outliers$error, rev = TRUE)\n\nm_outlier &lt;- leaflet::leaflet(data = asb_outliers) |&gt;\n  leaflet::addPolygons(data = bnt_shp, fillOpacity = 0, col = \"black\") |&gt;\n  leaflet::addTiles() |&gt;\n  leaflet::addCircleMarkers(popup= ~comparison, color = ~pal_asb(error)) |&gt;\n  leaflet::addLegend('bottomright',\n            pal =pal_asb,\n            values = ~error,\n            title = 'Error',\n            opacity = 1)\n\nm_outlier\n\n\n\n\n\n\nCode\n#saveRDS(m_outlier, here(\"1_data\", \"ml_m_outlier.RDS\"))\n\n\nHighest error was observed in North Cricklewood around Pennine Mansions. We can see that the point is located within blocks of flats and is in the vicinity of some shops and bus stations on the street. It is likely that there is a high residential and transient population density. Hence, the random forest model has underestimated the count of ASB.\nSecond highest error was spotted in a neighbourhood between UK Health Security Agency and Colindale Station. Again, this neighbourhood is likely to have a high volume of traffic. Despite the recent closure of Colindale station, there is a tube replacement bus stop on Colindale Avenue very close to the hotspot point where the model missed."
+  },
+  {
+    "objectID": "ml.html#footnotes",
+    "href": "ml.html#footnotes",
+    "title": "Classic ML",
+    "section": "Footnotes",
+    "text": "Footnotes\n\n\nCichosz - Urban Crime Risk Prediction Using Point of Interest Data: https://www.mdpi.com/2220-9964/9/7/459↩︎"
   }
 ]

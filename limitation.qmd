@@ -1,7 +1,13 @@
 ---
-title: "Limitation"
+title: "Conclusion"
 ---
+## Summary
 
+## Limitation
 - Data Quality
     - Biased patterns in patrol
     - Tendency to be more crimes near police station
+
+## Strength 
+
+## Future Project

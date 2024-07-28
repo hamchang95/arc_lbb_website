@@ -16,3 +16,312 @@ format:
 editor_options: 
   chunk_output_type: console
 ---
+##--Introduction
+While we've built a model so far that takes geographical information into account, we'll now build more classic machine learning models. There is a range of classic machine learning models; however, we will focus on regression, support vector machine, random forest models as they have been investigated in previous literature. [^1]
+
+[^1]: Cichosz - Urban Crime Risk Prediction Using Point of Interest Data: <https://www.mdpi.com/2220-9964/9/7/459>
+
+##--Set Up
+###--Load ASB and Non-ASB data
+```{r}
+#--Load packages
+pacman::p_load(sf, dials,ranger, broom, kernlab, doParallel, workflowsets, rpart.plot, lubridate, here, rio, vip, ggplot2, readr, rsample, parsnip, recipes, workflows, tune, yardstick, dplyr)
+  # alternatively, tidymodels can be loaded
+
+#--Import Barnet shapefile
+bnt_shp <- sf::st_read(here("1_data", "9_geo", "bnt_lad.json"), crs = 4326) |> 
+    st_make_valid()
+
+#--Read in ASB data
+asb <- rio::import(here("3_output", "asb_with_nearest_distances.csv"))
+
+#--Apply basic transformation to asb
+asb <- asb |>
+  rename(latitude = location.latitude, longitude = location.longitude) |>
+  mutate(across(where(is.character), as.factor)) |>
+  select(-contains("id"), -category)
+
+#--Load non-asb points (points where the count of ASB is 0)
+non_asb <- readRDS(here("1_data", "non_asb_points.RDS"))
+
+#--Apply basic transformation to non-asb
+non_asb <- non_asb |>
+  st_transform(4326) |>
+  mutate(
+    longitude = st_coordinates(non_asb)[, 1],
+    latitude = st_coordinates(non_asb)[, 2]
+  )
+
+#--Count
+asb_ct <- asb |> 
+  group_by(longitude, latitude) |>
+  count() |> 
+  ungroup() |>
+  inner_join(asb, by = c('longitude', 'latitude')) |>
+  distinct(longitude, latitude, .keep_all = TRUE) |>
+  select(-month)  
+
+non_asb_ct <- non_asb |>
+  mutate(n = 0) |>
+  mutate(longitude = st_coordinates(non_asb)[, 1],
+  latitude = st_coordinates(non_asb)[, 2]) |>
+  select(-d_bridge) |>
+  st_drop_geometry()
+
+#--Add row_id
+asb_ct <- asb_ct |>
+  mutate(row_id = 1:nrow(asb_ct), .before = everything())
+
+non_asb_ct <- non_asb_ct |>
+  mutate(row_id = 1:nrow(non_asb_ct), .before = everything()) 
+
+#--Combine data 
+set.seed(1234) 
+non_asb_ct_sample <- sample(1:5552, 3485, replace = FALSE)
+  # sampling 3485 non-asb points to match the number of asb points
+non_asb_ct_fin <- non_asb_ct[non_asb_ct_sample,]
+asb_all <- rbind(asb_ct, non_asb_ct_fin)
+asb_all_sample <- sample(1:6970, 6970*0.5, replace = FALSE)
+  # sampling half of all data for efficiency
+asb_all_fin <- asb_all[asb_all_sample,]
+```
+
+### Further Pre-Process Data
+In this stage, `asb_all_fin` will be split into test and train sets. Also, a recpie (`asb_recipe`), which lays out pre-processing steps for models, will be defined.
+
+```{r}
+#--Split the data into training and testing sets
+asb_split <- initial_split(asb_all_fin, prop = 0.8)
+asb_train <- training(asb_split)
+asb_test <- testing(asb_split)
+
+#--Define recipe
+poi_pred <- names(asb_train)[grepl("d_", names(asb_train))]
+formula <- as.formula(paste0("n ~", paste(poi_pred, collapse = "+")))
+
+asb_recipe <- recipe(formula = formula, data = asb_train) |>
+  step_zv(all_predictors()) 
+  # removes indicator variables that only contain a single unique values
+
+#--Prepare the recipe
+asb_prep <- recipes::prep(asb_recipe)
+
+#--Bake the training and testing datasets
+asb_train_preprocessed <- bake(asb_prep, new_data = asb_train)
+asb_test_preprocessed <- bake(asb_prep, new_data = asb_test)
+
+#--Create a 5-fold CV object from training data
+asb_cv <- vfold_cv(asb_train, 5)
+```
+
+## Build Models
+### Configure Model Specification
+```{r}
+#--Define models
+#---Linear regression
+lm_spec <-
+    linear_reg() |>
+    set_engine('lm')
+
+#---SVM regression
+svm_spec <-
+    svm_poly(
+        cost = tune(), 
+        degree = tune()
+    ) |>
+    set_engine('kernlab') |>
+    set_mode('regression')
+
+#---RF regression
+rf_spec <-
+    rand_forest(
+        trees = 500,
+        mtry = tune(),
+        # no. of predictors that'll be randomly sampled at each split when creating the tree models
+        min_n = 10
+        # minimum no. of data points in a node required for the node to be split further
+        # the node needs to have at least min_n data points
+    ) |>
+    set_engine('ranger', importance = "impurity") |>
+    set_mode('regression')
+
+#--Create workflow
+lm_wf <- workflow() |>
+    add_model(lm_spec) |>
+    add_recipe(asb_recipe)
+
+svm_wf <- workflow() |>
+    add_model(svm_spec)|>
+    add_recipe(asb_recipe)
+
+rf_wf <- workflow() |>
+    add_model(rf_spec)|>
+    add_recipe(asb_recipe)
+```
+
+### Define Grids for Hyperparameters
+```{r}
+#--Control settings
+distr_grid_ctrl <- 
+    control_grid(
+        save_pred = TRUE, 
+        save_workflow = TRUE,
+        verbose = TRUE
+    )
+
+#--Define a smaller tuning grid
+svm_grid <- grid_regular(
+  cost(range = c(-1, 1)),
+  degree(range = c(1, 3)),
+  levels = 3
+)
+
+#--Define the tuning grid for rf
+rf_grid <- grid_regular(
+    mtry(range = c(1, ncol(asb_train_preprocessed)) - 1),
+    levels = 5)
+
+#--Enable parallel processing
+library(doParallel)
+cl <- makePSOCKcluster(detectCores() - 1)
+registerDoParallel(cl)
+```
+
+### Tune Models
+Model tuning can take awhile. Hence, tuned models have been loaded for efficiency. You can run the codes below `#--Tune models` to tune the hyperparameters of support vector machine (SVM) and random forest (RF).
+  
+```{r}
+#--Load tuned models
+tuned_lm <- readRDS(here("1_data", "tuned_lm.RDS"))
+tuned_svm <- readRDS(here("1_data", "tuned_svm.RDS"))
+tuned_rf <- readRDS(here("1_data", "tuned_rf.RDS"))
+
+#--Tune models
+#tuned_lm <- tune_grid(
+    #lm_wf,
+    #resamples = asb_cv,
+    #control = distr_grid_ctrl)
+
+#tuned_svm <- tune_grid(
+    #svm_wf,
+    #grid = svm_grid,
+    #resamples = asb_cv, 
+    #control = distr_grid_ctrl)
+
+#tuned_rf <- tune_grid(
+    #rf_wf,
+    #grid = rf_grid,
+    #resamples = asb_cv, 
+    #control = distr_grid_ctrl)
+
+#saveRDS(tuned_lm, here("1_data", "tuned_lm.RDS"))
+#saveRDS(tuned_svm, here("1_data", "tuned_svm.RDS"))
+#saveRDS(tuned_rf, here("1_data", "tuned_rf.RDS"))
+
+#--Stop parallel processing
+stopCluster(cl)
+```
+
+## Compare Models
+```{r}
+#--Get metrics
+lm_metrics <- collect_metrics(tuned_lm)
+svm_metrics <- collect_metrics(tuned_svm) 
+rf_metrics <- collect_metrics(tuned_rf)
+
+#--Compare RMSE of all models
+lm_best <- lm_metrics |> filter(.metric == "rmse") |> arrange(mean) |> slice(1)
+svm_best <- svm_metrics |> filter(.metric == "rmse") |> arrange(mean) |> slice(1)
+rf_best <- rf_metrics |> filter(.metric == "rmse") |> arrange(mean) |> slice(1)
+
+comp <- list(lm_best, svm_best, rf_best) |>
+  data.table::rbindlist(fill = TRUE) |>
+  mutate(Model = c("Linear Regression", "Support Vector Machine", "Random Forest"), .before = everything()) |>
+  mutate(across(where(is.numeric), ~round(.x, 2))) |>
+  select(-`.estimator`)
+
+names(comp) <- stringr::str_to_sentence(stringr::str_remove_all(names(comp), "\\."))
+
+comp_flx <- flextable::flextable(comp)
+comp_flx
+#saveRDS(comp_flx, here("1_data", "ml_comp_flx.RDS"))
+
+#--Extract the best hyperparameters for rf
+best_rf_params <- select_best(tuned_rf, metric =  "rmse")
+
+#--Finalize the rf workflow with best parameters
+final_rf_wf <- finalize_workflow(rf_wf, best_rf_params)
+
+#--Train the final model on the entire training dataset
+final_rf_fit <- fit(final_rf_wf, data = asb_train_preprocessed)
+```
+
+## Evaluate Final Model
+```{r}
+#--Predict on the test data
+rf_test_predictions <- predict(final_rf_fit, asb_test_preprocessed)
+
+#--Evaluate the predictions
+rf_test_results <- bind_cols(asb_test_preprocessed, rf_test_predictions)
+
+#--Calculate performance metrics
+metrics_result <- rf_test_results |>
+  metrics(truth = n, estimate = .pred)
+
+#--Plot the importance of features
+p_vip <- vip(final_rf_fit, num_features = 10) +
+  theme_minimal() +
+  ggtitle("Top 10 Features in Random Forest Model")
+
+p_vip
+#saveRDS(p_vip, here("1_data", "ml_p_vip.RDS"))
+
+#--Plot predicted vs actual values
+p_rf <- rf_test_results |>
+  ggplot(aes(x = n, y = .pred)) +
+  geom_point(alpha = 0.6) +
+  geom_abline(linetype = "dashed", color = "red") +
+  labs(x = "Actual Values", y = "Predicted Values") +
+  theme_minimal() +
+  ggtitle("Actual vs Predicted Count of ASB from Random Forest Model")
+
+p_rf
+#saveRDS(p_rf, here("1_data", "ml_p_rf.RDS"))
+```
+
+## Analyse Outliers
+### Values above 50
+In the plot above, we can see the model does not predict points with high number of ASB. So, we will explore those points on a map.
+```{r}
+#--Subset high values
+rf_outliers <- rf_test_results |>
+  mutate(row_id = 1:nrow(rf_test_results)) |>
+  filter(n >= 50)
+
+#--Calculate error
+asb_outliers <- asb_test_preprocessed[rf_outliers$row_id,] |>
+  left_join(asb_all) |>
+  mutate(pred = rf_outliers$`.pred`) |>
+  mutate(comparison = paste0(n, " (actual) vs ", round(pred), " (predicted)")) |>
+  mutate(error = round(n - pred))
+
+# Map outliers of high values
+pal_asb <- leaflet::colorNumeric(palette = 'RdYlGn', asb_outliers$error, rev = TRUE)
+
+m_outlier <- leaflet::leaflet(data = asb_outliers) |>
+  leaflet::addPolygons(data = bnt_shp, fillOpacity = 0, col = "black") |>
+  leaflet::addTiles() |>
+  leaflet::addCircleMarkers(popup= ~comparison, color = ~pal_asb(error)) |>
+  leaflet::addLegend('bottomright',
+            pal =pal_asb,
+            values = ~error,
+            title = 'Error',
+            opacity = 1)
+
+m_outlier
+#saveRDS(m_outlier, here("1_data", "ml_m_outlier.RDS"))
+```
+
+Highest error was observed in North Cricklewood around Pennine Mansions. We can see that the point is located within blocks of flats and is in the vicinity of some shops and bus stations on the street. It is likely that there is a high residential and transient population density. Hence, the random forest model has underestimated the count of ASB.
+
+Second highest error was spotted in a neighbourhood between UK Health Security Agency and Colindale Station. Again, this neighbourhood is likely to have a high volume of traffic. Despite the recent closure of Colindale station, there is a tube replacement bus stop on Colindale Avenue very close to the hotspot point where the model missed.
