@@ -11,7 +11,7 @@
     "href": "about.html",
     "title": "About",
     "section": "",
-    "text": "Data Processing\nEDA\nAutocorrelation\n\nGlobal\nLocal\n\nKriging\nPCA\nMultivariate Kriging\n\nModel Evaluation\n\nGeographically Weighted Regression\n\nModel Evaluation"
+    "text": "Data Processing\nEDA\nAutocorrelation\n\nGlobal\nLocal\n\nKriging\nPCA\nMultivariate Kriging\n\nModel Evaluation\n\nMachine Learning\n\nModel Evaluation"
   },
   {
     "objectID": "eda.html",

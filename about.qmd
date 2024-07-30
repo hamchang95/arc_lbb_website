@@ -11,5 +11,5 @@ title: "About"
 - PCA
 - Multivariate Kriging
     - Model Evaluation
-- Geographically Weighted Regression
+- Machine Learning 
     - Model Evaluation
