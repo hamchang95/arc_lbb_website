@@ -15,7 +15,9 @@ website:
       - multikriging.qmd
       - ml.qmd
       - conclusion.qmd
-      - ppt.qmd
+      - href: ppt.qmd
+        text: Slides
+
       
 
 format:
