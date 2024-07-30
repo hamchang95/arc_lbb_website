@@ -467,5 +467,194 @@
     "title": "Conclusion",
     "section": "Strength & Lessons Learned",
     "text": "Strength & Lessons Learned\n\nBoth kriging and random forest models were able to identify cold spots of anti-social behaviour within the London Borough of Barnet. This may be of use to Metropolitan Police to optimise resource allocation.\nLesson learned include:\n\nImportance of version control & utilising saveRDS()\nImportance of evaluation to test model performance"
+  },
+  {
+    "objectID": "ppt.html#introduction",
+    "href": "ppt.html#introduction",
+    "title": "Assessing the Risk of Crime in London Borough of Barnet",
+    "section": "Introduction",
+    "text": "Introduction\n\n\nCan identifying environmental factors help inform the risk of crime at population level?\n\nRisk Terrain Modelling by Metropolitan Police\n\nGoal: to build models to predict crime based on places information\nData\n\nStreet-level crime data from Police\nPlaces of interest data from Open Street Map\n\n52 types of places, including shops, parking spaces, etc.\n\n\n\n\n\ncrime: tricky topic\nindiv level: personal / behavioural factors bigger impact\nquestion\nshift focus to popn\nCan identifying environmental factors help inform the risk of crime?\nsimilar approach: Met Police - risk terrain modelling"
+  },
+  {
+    "objectID": "ppt.html#contents",
+    "href": "ppt.html#contents",
+    "title": "Assessing the Risk of Crime in London Borough of Barnet",
+    "section": "Contents",
+    "text": "Contents\n\nIntroduction\nExploratory Data Analysis\nSpatial Autocorrelation\nPrincipal Component Analysis\nMultivariate Kriging Model\nClassic Machine Learning Model\nConclusion\nSources"
+  },
+  {
+    "objectID": "ppt.html#data",
+    "href": "ppt.html#data",
+    "title": "Assessing the Risk of Crime in London Borough of Barnet",
+    "section": "Data",
+    "text": "Data\n\n\nStreet-level crime data from open police data\nPlaces of interest (POI) data from Open Street Map\n\n\n52 types of places, including:\n\ngas stations\ncar / bicycle parks\nhospitals\n…\n\n\nGeospatial Distribution of Crimes in Barnet by Category from April 2021 to March 2024\n\n\nexpand for full code\nreadRDS(here(\"1_data\", \"m1.RDS\"))\n\n\n\n\n\n\nDate\n\n\n\n\n\n\nCategory\n\n\n\n\nanti social behaviour\n\n\n\n\n\nbicycle theft\n\n\n\n\n\nburglary\n\n\n\n\n\ncriminal damage arson\n\n\n\n\n\ndrugs\n\n\n\n\n\nother crime\n\n\n\n\n\nother theft\n\n\n\n\n\npossession of weapons\n\n\n\n\n\npublic order\n\n\n\n\n\nrobbery\n\n\n\n\n\nshoplifting\n\n\n\n\n\ntheft from the person\n\n\n\n\n\nvehicle crime\n\n\n\n\n\nviolent crime"
+  },
+  {
+    "objectID": "ppt.html#spatial-autocorrelation",
+    "href": "ppt.html#spatial-autocorrelation",
+    "title": "Assessing the Risk of Crime in London Borough of Barnet",
+    "section": "Spatial Autocorrelation",
+    "text": "Spatial Autocorrelation\n\n\n\nSpatial autocorrelation measures the extent to which values in a spatial dataset are similar or dissimilar to their neighbours. Spatial correlation can be positive (clustering), negative (dispersion) or zero (random).\n\n\n\nAfter creating distance-based weights, global spatial autocorrelation test was conducted for each type of crime.\\\nOnly anti-social behaviour showed a significant spatial autocorrelation (p-value &lt; 0.001) with a Moran’s I statistic of 1.2E-03, which was a weak positive autocorrelation.\\\n\n\nTypeP ValueMoran's IAnti-Social Behaviour0.000e+00 1.2e-03Violent Crime6.545e-01-2.0e-04Other5.789e-01-3.0e-04Vehicle Crime3.330e-01 2.0e-04Theft from the Person1.271e-01 2.3e-03Burglary1.349e-01 1.9e-03\n\n\nChanging the distance threshold did not change the finding."
+  },
+  {
+    "objectID": "ppt.html#kriging",
+    "href": "ppt.html#kriging",
+    "title": "Assessing the Risk of Crime in London Borough of Barnet",
+    "section": "Kriging",
+    "text": "Kriging\n\n\n\nKriging is a method of spatial interpolation, which models the spatial relationship between points and hence gives less weight to points that are farther away from each other. A kriging model creates a prediction surface based on location coordinates and other predictors."
+  },
+  {
+    "objectID": "ppt.html#principal-component-analysis",
+    "href": "ppt.html#principal-component-analysis",
+    "title": "Assessing the Risk of Crime in London Borough of Barnet",
+    "section": "Principal Component Analysis",
+    "text": "Principal Component Analysis\n\n\n\nPrincipal Component Analysis (PCA) is a linear dimensionality reduction method. The data is linearly transformed onto a new coordinate system in a way that it identifies principal components capturing the largest variation in the data.\n\n\n\n\nDimension 1 to 7 explained about 70% of the total variance.\n\n\nresult of PCA\ndimension 1 to 7 represented 70% of all the places information\nwonder what those mean"
+  },
+  {
+    "objectID": "ppt.html#multi-kriging",
+    "href": "ppt.html#multi-kriging",
+    "title": "Assessing the Risk of Crime in London Borough of Barnet",
+    "section": "Multi-Kriging",
+    "text": "Multi-Kriging"
+  },
+  {
+    "objectID": "ppt.html#geographically-weighted-regression",
+    "href": "ppt.html#geographically-weighted-regression",
+    "title": "Assessing the Risk of Crime in London Borough of Barnet",
+    "section": "Geographically Weighted Regression",
+    "text": "Geographically Weighted Regression\n\n\n\n🔗"
+  },
+  {
+    "objectID": "ppt.html#exploratory-data-analysis",
+    "href": "ppt.html#exploratory-data-analysis",
+    "title": "Assessing the Risk of Crime in London Borough of Barnet",
+    "section": "Exploratory Data Analysis",
+    "text": "Exploratory Data Analysis\nOverall Frequency\nThere was a total of 104,322 crimes between April 2021 and March 2024 in Barnet.\nIn this period, anti-social behaviour was the most common type of crime, followed by violent crime.\n\n\n\n\n\n\n\n\nlooked into crime in Barnet between 2021 and 2024\nasb: most common"
+  },
+  {
+    "objectID": "ppt.html#exploratory-data-analysis-1",
+    "href": "ppt.html#exploratory-data-analysis-1",
+    "title": "Assessing the Risk of Crime in London Borough of Barnet",
+    "section": "Exploratory Data Analysis",
+    "text": "Exploratory Data Analysis\nFequency in the Last 12 Months\nHowever, in the last 12 months, violent crime has become the most common type of crime, which raises concerns.\n\n\n\n\n\n\n\n\ntrend changed in the last 12 months\nviolent crime: most common"
+  },
+  {
+    "objectID": "ppt.html#machine-learning-model",
+    "href": "ppt.html#machine-learning-model",
+    "title": "Assessing the Risk of Crime in London Borough of Barnet",
+    "section": "Machine Learning Model",
+    "text": "Machine Learning Model"
+  },
+  {
+    "objectID": "ppt.html#spatial-autocorrelation-1",
+    "href": "ppt.html#spatial-autocorrelation-1",
+    "title": "Assessing the Risk of Crime in London Borough of Barnet",
+    "section": "Spatial Autocorrelation",
+    "text": "Spatial Autocorrelation\nLocal Autocorrelation Test for ASB\n\n\nQuadrantCountHigh-High0Low-Low1,534High-Low4Low-High0Not Significant24,013\n\n\nMost points were not statistically significant. However, some cold spots were detected."
+  },
+  {
+    "objectID": "ppt.html#global-spatial-autocorrelation",
+    "href": "ppt.html#global-spatial-autocorrelation",
+    "title": "Assessing the Risk of Crime in London Borough of Barnet",
+    "section": "Global Spatial Autocorrelation",
+    "text": "Global Spatial Autocorrelation\n\n\n\nSpatial autocorrelation measures the extent to which values in a spatial dataset are similar or dissimilar to their neighbours. Spatial correlation can be positive (clustering), negative (dispersion) or zero (random).\n\n\n\nAfter creating distance-based weights, global spatial autocorrelation test was conducted for each type of crime.\nOnly anti-social behaviour showed a significant spatial autocorrelation (p-value &lt; 0.001) with a Moran’s I statistic of 1.2E-03, which was a weak positive autocorrelation.\n\n\nTypeP ValueMoran's IAnti-Social Behaviour0.000e+00 1.2e-03Violent Crime6.545e-01-2.0e-04Other5.789e-01-3.0e-04Vehicle Crime3.330e-01 2.0e-04Theft from the Person1.271e-01 2.3e-03Burglary1.349e-01 1.9e-03\n\n\nChanging the distance threshold did not change the finding.\n\n\nbefore building models, spatial autocorrelation for each type of crime\nsee if values are similar between neighbours\nonly ASB showed significant autocorrelation\nhowever, even that one was weak\nthe magnitude very small"
+  },
+  {
+    "objectID": "ppt.html#local-spatial-autocorrelation-for-asb",
+    "href": "ppt.html#local-spatial-autocorrelation-for-asb",
+    "title": "Assessing the Risk of Crime in London Borough of Barnet",
+    "section": "Local Spatial Autocorrelation for ASB",
+    "text": "Local Spatial Autocorrelation for ASB\nAs anti-social behaviour (ASB) only demonstrated spatial autocorrelation, the points that precisely show autocorrelation will be identified.\nMost points were not statistically significant. However, some cold spots were detected in Burnt Oak and East Finchely.\n\n\nQuadrantCountHigh-High0Low-Low1,534High-Low4Low-High0Not Significant24,013\n\n\n\n\n\n\n\n\n\n\nSince only asb showed some spatial pattern, from here and onwards, I’ll only focus on ASB\nAfter identifying global autocorrelation, I looked into where exactly such autocorrealtion happens\nNot significant\nLow-Low clusters mostly Burnt Oak & East Finchley"
+  },
+  {
+    "objectID": "ppt.html#principal-component-analysis-1",
+    "href": "ppt.html#principal-component-analysis-1",
+    "title": "Assessing the Risk of Crime in London Borough of Barnet",
+    "section": "Principal Component Analysis",
+    "text": "Principal Component Analysis\n\n\n\n\n\n\n\n\nDimension\nTop 10 Contributors\nMain Theme\n\n\n\n\n1\nDistance to nearest: car repair shop, electronics shop, money exchange and transfer, garages, vet, houseware shop, gas station, liquor shop, and launderette\nUrban outskirt\n\n\n2\nDistance to nearest: bakery, bank, clothes, lawyer’s office, bridge, real estate agent, post-secondary institution (e.g., college or university), ATM machines, post office, and convenience store\nHigh streets\n\n\n3\nDistance to nearest: bar, clinic, doctor’s office, houseware shop, aesthetics shop (beauty), lawyer’s office, post-secondary institution, hospital, post office, and vet\nHealthcare setting\n\n\n4\nDistance to nearest: post depot, garage, grave yard, post office, warehouse, car wash, car dealer, aesthetics, and clothing shop\nUrban outskirt\n\n\n\n\n\ntop 10 contributors to the construction of dimensions\nbased on top 10 contributors, main theme of dimension 1 - urban outskirt; dim2 - high streets; dim3 - healthcare; dim4 - urban outskirt"
+  },
+  {
+    "objectID": "ppt.html#kriging-model",
+    "href": "ppt.html#kriging-model",
+    "title": "Assessing the Risk of Crime in London Borough of Barnet",
+    "section": "Kriging Model",
+    "text": "Kriging Model\n\n\n\nKriging is a method of spatial interpolation, which models the spatial relationship between points and hence gives less weight to points that are farther away from each other. A kriging model creates a prediction surface based on location coordinates and other predictors.\n\n\n\n\n\n\n\n\n\nThe multivariate kriging model gave a predicted count of ASB ranging from 1.3 to 24.4.\nThe highest prediction was estimated to be in North Finchley, close to a many shops on high street. A couple more hot spots were identified in Golders Green and Colindale.\n\n\nKriging - spatial interpolation method\nUses distinct location coordinates & other preidctors\n\nCool - make prediction surface over unknown locations: no asb took place before\nHighest prediction in North Finchley: loads of shops\nOther hotspots - Golders Green & Colindale"
+  },
+  {
+    "objectID": "ppt.html#conclusion",
+    "href": "ppt.html#conclusion",
+    "title": "Assessing the Risk of Crime in London Borough of Barnet",
+    "section": "Conclusion",
+    "text": "Conclusion\n\n\n\n🔗"
+  },
+  {
+    "objectID": "ppt.html#kriging-model-evaluation",
+    "href": "ppt.html#kriging-model-evaluation",
+    "title": "Assessing the Risk of Crime in London Borough of Barnet",
+    "section": "Kriging Model Evaluation",
+    "text": "Kriging Model Evaluation\nOverall, kriging model had an root mean square error (RMSE) of 12.1.\n\n\n\n\n\n\nThe error ranged from -20.5 to 259.5 and had a median of -0.1 and a mean of 3.3. Assuming that the absolute error lower than 10 is a moderate estimation, the model fairly predicts the number of ASB.\nHowever, the model wasn’t able to capture high ASB crime spots. Greatest error was spotted along North Circular Road in East Finchley near St Pancras and Islington Cemetery. While the model predicted about 3.5 ASB crimes based on places around, there were 163 ASB crimes over three years.\n\n\nModel evaluation - RMSE of 12.1\nMap of error term - difference between actual & predicted\nMost points - moderate prediciton\nAlmost no overprediction\nReal problem was underestimation\nInteresting Point in Finchley\nError was almost 160\nHighly residential; blocks of flats"
+  },
+  {
+    "objectID": "ppt.html#kriging-model-evaluation-1",
+    "href": "ppt.html#kriging-model-evaluation-1",
+    "title": "Assessing the Risk of Crime in London Borough of Barnet",
+    "section": "Kriging Model Evaluation",
+    "text": "Kriging Model Evaluation\nTest and Train Error\nBefore building a kriging model, principal component analysis (PCA) was performed. Rather than building kriging model with 52 predictors, seven principal components, which contained about 70% of information of the predictors, were used to make predictions.\n\nTrain error is negligible as its value is extremely small.\nOn the other hand, test error shows some variation over different number of principal components.\nKeeping 4 or 6 components appears to be a reasonable choice as RMSE is fairly low with 4 or 6 components.\nFor easier interpretation, 4 was chosen as the number of components for PCA model.\n\n\nmodel built with principal components instead of places\nPCA (Principal Component Analysis) - summarised 52 places into 7 components\nquestion - giving too much input to the model so that it is overfitting: good accuracy but poor prediction\nhaving more than 3 to 4 dimensions - not easily interpretable\ndecide on appropriate number of components\ntrain & test error\ntrain error - negligible\ntest error - 7 is the best, but 4 & 6 also reasonable\neasier interpretation - chose 4"
+  },
+  {
+    "objectID": "ppt.html#random-forest-model",
+    "href": "ppt.html#random-forest-model",
+    "title": "Assessing the Risk of Crime in London Borough of Barnet",
+    "section": "Random Forest Model",
+    "text": "Random Forest Model\nAmong linear regression, support vector machine and random forest models in a five-fold cross validation set, random forest model had lowest error measured by RMSE.\n\nThe 10 most important features in the random forest model were vicinity to: clothing shop, bicycle parking, houseware shop, parking lot, bank, pharmacy, convenience, fuel, restaurant, and community centre. These are a mix of features from high streets and urban outskirts.\n\n\nmore classic machine learning models\nbuilt linear regression, svm, rf\nrf performed best\nthese are the 10 most important features in building rf model\nmix of features from high streets & urban outskirts"
+  },
+  {
+    "objectID": "ppt.html#random-forest-model-1",
+    "href": "ppt.html#random-forest-model-1",
+    "title": "Assessing the Risk of Crime in London Borough of Barnet",
+    "section": "Random Forest Model",
+    "text": "Random Forest Model\n\n\n\n\n\n\nPredicted count of ASB by random forest model is overall similar to that of kriging model, however, with a slightly wider range.\nHighest prediction of around 40 ASB cases was estimated in Chipping Barnet.\n\n\nsimilar prediction as kriging but with slightly wider range\nhighest prediction of around 40 asb - Chipping Barnet"
+  },
+  {
+    "objectID": "ppt.html#random-forest-model-evaluation",
+    "href": "ppt.html#random-forest-model-evaluation",
+    "title": "Assessing the Risk of Crime in London Borough of Barnet",
+    "section": "Random Forest Model Evaluation",
+    "text": "Random Forest Model Evaluation\n\nSimilar to kriging model, the model was not able to predict the points with high number of ASB points.\n\n\noverall, rf was good at predicting low counts, but not high counts, similar to kriging\noutliers - points actual count was above 50"
+  },
+  {
+    "objectID": "ppt.html#summary",
+    "href": "ppt.html#summary",
+    "title": "Assessing the Risk of Crime in London Borough of Barnet",
+    "section": "Summary",
+    "text": "Summary\n\nAnti-social behaviour (N = 25,551) was the most prevalent type of crime in Barnet between April 2021 and March 2024. However, in the last 12 months between April 2023 and March 2024, violent crime (N = 7,217) was the most common type of crime, followed by anti-social behaviour (N = 6,912), which raises concerns.\n\nOnly anti-social behaviour of all crime types demonstrated a statistically significant spatial autocorrelation. That is, areas nearby locations where anti-social behaviour took place are also likely to have anti-social behaviour. Changing the threshold of distance for classifying neighbouring points did not change the finding.\n\nDistances to each nearest place of interest were summarised into seven components by PCA. Evaluation of multivariate kriging model later showed that four components are sufficient for the model to perform. The four components primarily captured urban outskirts, high streets and healthcare settings.\n\nKriging model predicted the number of anti-social behavoiur, ranging from 1.3 to 25.5. When the prediction was compared with the actual count of anti-social behaviour, it fairly captured the locations where anti-social behaviour did not happen too frequently. Nonetheless, the model poorly captured hot spots. This could be due to high resident or transient population density in the area.\n\nAmongst linear regression, support vector machine and random forest models, random forest performed best. Distance to nearest clothes shop, bicycle parking spaces, houseware stores, car parking lots, bank, pharmacy, convenience store, gas station, restaurant, and community centre were the ten most important features in the random forest model. However, similar to kriging model, the random forest model was not able to capture hot spots of anti-social behaviour. Given that the locations with highest error observed were in either blocks of flats or near tube station, it is also likely that the model’s underestimation arises from the lack of adjustment of crime count by population density.\n\n\n\nasb: most common all-time; spatial autocorrelation\nPCA: summarised places to four, which mainly captured features of urban outskirts, high streets and healthcare settings\nboth kriging & rf: pretty good at detecting cold spots of ASB but not hotspots\npossible explanation is that the models predicted the count of ASB not rate, which would have been adjusted for population density"
+  },
+  {
+    "objectID": "ppt.html#limitation-future-project-direction",
+    "href": "ppt.html#limitation-future-project-direction",
+    "title": "Assessing the Risk of Crime in London Borough of Barnet",
+    "section": "Limitation & Future Project Direction",
+    "text": "Limitation & Future Project Direction\n\nLack of adjustment for population density\n\nAdjustment by population traffic with footfall data\nSubset crime points around tube stations and adjust traffic volume with tap in and out data by TfL\n\nWeak spatial autocorrelation\n\nSubset different time range or different areas\n\nData Quality\n\nCrime data\n\nBiased patterns in patrol, leading to more records of crime near police station\nRetroactive update of crime count\n\nLimiting the data import to the second or third latest month\n\n\nPlaces data\n\nMay not be totally inclusive of terrestrial information\n\nScoping places with safety neighbourhood team\n\n\n\n\n\n\nlooking forward to getting footfall data to calculate rate\nalternative, subset crime points around tube stations - adjust for traffic volume with TfL’s tap in and out dat\nweak autocorrleation\nsubset different time range / different areas\ndata quality\nasked met police about how they patrol - start from police station and randomly patrol\nvery likely that more crimes will be recorded near station, which was shown in crime data\nretroactive counting\nplaces data - 52 but could be still missing out\ncooperate with safety neighbourhood team to scope more places together"
+  },
+  {
+    "objectID": "ppt.html#strength-lessons-learned",
+    "href": "ppt.html#strength-lessons-learned",
+    "title": "Assessing the Risk of Crime in London Borough of Barnet",
+    "section": "Strength & Lessons Learned",
+    "text": "Strength & Lessons Learned\n\nKriging model was able to make prediction over location where no anti-social behaviour was not observed in the period of investigation.\nBoth kriging and random forest models were able to identify cold spots of anti-social behaviour within the London Borough of Barnet. This may be of use to Metropolitan Police to optimise resource allocation.\nLesson learned include:\n\nImportance of version control & utilising saveRDS()\nImportance of evaluation to test model performance\n\n\n\n\nkriging - can predict asb counts where no asb has happened before\ncouncil person - hot spot\nmet police - detecting cold spot helpful to optimise resource allocation\nlessons during this long-term project\nhow important it is to do version control well\ngithub repository\nhow important it is to test model performance"
+  },
+  {
+    "objectID": "ppt.html#random-forest-outlier-analysis",
+    "href": "ppt.html#random-forest-outlier-analysis",
+    "title": "Assessing the Risk of Crime in London Borough of Barnet",
+    "section": "Random Forest Outlier Analysis",
+    "text": "Random Forest Outlier Analysis\nValues above 50\n\n\n\n\n\n\nHighest error was observed in North Cricklewood around Pennine Mansions. We can see that the point is located within blocks of flats and is in the vicinity of some shops and bus stations on the street.\n\n\nhere highest error observed in North Cricklewood\nalso a lot of flats"
+  },
+  {
+    "objectID": "ppt.html#end",
+    "href": "ppt.html#end",
+    "title": "Assessing the Risk of Crime in London Borough of Barnet",
+    "section": "End",
+    "text": "End\n📝Github Repository: https://github.com/hamchang95/arc_lbb\n📍Project Website: https://hamchang95.github.io/arc_lbb_website/\n📩Contact: hannah.chang@barnet.gov.uk\n\n\n\n🔗"
   }
 ]

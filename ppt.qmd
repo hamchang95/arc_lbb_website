@@ -1,15 +1,19 @@
 ---
-title: "ARC-LBB"
-subtitle: Assessing the Risk of Crime in London Borough of Barnet
-author: "Hannah Chang"
+title: "Assessing the Risk of Crime in London Borough of Barnet" 
+author: "Hannah Chang Mentored by Martine Wauben"
 format: 
     revealjs:
+        title-slide-attributes:
+            data-background-image: "ppt_bg.jpg"
+            data-background-size: contain
+            data-background-opacity: "0.4"
         css: custom_style.css
         code-copy: hover
         code-overflow: scroll
         multiplex: false
         embed-resources: true
-        controls: auto
+        controls: true
+        footer: "[🔗](https://hamchang95.github.io/arc_lbb_website/)"
         progress: true
         menu:
             side: left
@@ -21,81 +25,377 @@ execute:
   echo: false
 ---
 
-## Introduction
-blah blah blah
-
 ## Contents
-- Exploratory Data Analysis
-- Spatial Autocorrelation
-- Kriging
-- Principal Component Analysis
-- Multi-Kriging
-- Geographically Weighted Regression
 
-## EDA
-### Geospatial Distribution of Crimes in Barnet by Category from April 2021 to March 2024
+1.  Introduction
+
+2.  Exploratory Data Analysis
+
+3.  Spatial Autocorrelation
+
+4.  Principal Component Analysis
+
+5.  Multivariate Kriging Model
+
+6.  Classic Machine Learning Model
+
+7.  Conclusion
+
+8.  Sources
+
+## Introduction
+
+![](topic_modelling.jpg){fig-align="center" width="765"}
+
+-   Can identifying environmental factors help inform the risk of crime at population level?
+
+    -   Risk Terrain Modelling by Metropolitan Police
+
+-   Goal: to build models to predict crime based on places information
+-   Data
+
+    -   Street-level crime data from Police
+    -   Places of interest data from Open Street Map
+        -   52 types of places, including shops, parking spaces, etc.
+
+::: {.notes} 
+- crime: tricky topic
+- indiv level: personal / behavioural factors bigger impact
+- question
+- shift focus to popn
+- Can identifying environmental factors help inform the risk of crime?
+- similar approach: Met Police - risk terrain modelling
+:::
+
+## Exploratory Data Analysis
+
+### Overall Frequency
+
+There was a total of 104,322 crimes between April 2021 and March 2024 in Barnet.\
+In this period, anti-social behaviour was the most common type of crime, followed by violent crime.
+
 ```{r}
-#| echo: true
-#| code-fold: true
-#| code-summary: "expand for full code"
-
 #--Install / load packages
 rm(list = ls())
 pacman::p_load(sf, here, tmap, osmdata, tidyverse, data.table, rio, tidyverse, flextable, mapview, units, spdep, deldir, sp, rgeoda, leaflet, viridis, crosstalk, leaflet.extras, plotly)
-
-#--Import street-level crime data
-crime <- rio::import(here::here("3_output", "crime_2024-05-09.csv")) |>
-    dplyr::mutate(category = stringr::str_replace_all(category, "-", " ")) |>
-    sf::st_as_sf(coords = c("location.longitude", "location.latitude"), crs = 4326, dim = "XY") 
-    #from 2021-04 to 2024-03
-
-#--Import Barnet shapefile
-bnt_shp <- sf::st_read(here("1_data", "9_geo", "bnt_lad.json"), crs = 4326, quiet = TRUE) |>
-  st_make_valid()
-
-#--Filter crime that intersects or is in within Barnet file
-#crime_bnt <- crime[which(st_covers(bnt_shp, crime, sparse = FALSE)),]
-crime_bnt <- crime[which(st_intersects(bnt_shp, crime, sparse = FALSE)),]
-
-#--Amend date column
-crime_bnt$date <- as.Date(paste0(crime_bnt$month, "-01"))
-
-#--Create shared_data
-shared_data <- SharedData$new(crime_bnt)
-
-#--Assign colour palette
-n_pal <- length(unique(crime_bnt$category))
-crime_pal <- leaflet::colorFactor(turbo(n_pal), crime_bnt$category)
-
-#--Create filters
-month_slider <- crosstalk::filter_slider("date", "Date", shared_data, ~date, width = "100%")
-category_checkbox <- crosstalk::filter_checkbox("category", "Category", shared_data, ~category, columns = 1)
-
-#--Create map
-m_eda <- leaflet(data = shared_data) |>
-  leaflet::addProviderTiles("CartoDB.Positron")|>
-  leaflet::addCircleMarkers(color = ~crime_pal(category), radius = 2) |>
-  leaflet::addLegend("bottomright", pal = crime_pal, values = ~category, title = "Category") |>
-  leaflet::addPolygons(data = bnt_shp, fill = FALSE, color = "black")
-
-#--Pull everything together
-crosstalk::bscols(
-  widths = c(1, 3, 8),
-  htmltools::div(), #hack to solve the fiters getting clipped
-  list(month_slider,
-  category_checkbox),
-  m_eda
-)
 ```
 
+```{r fig.height = 6, fig.width = 12}
+readRDS(here("1_data", "pl_freq.RDS"))
+```
 
+::: {.notes} 
+- looked into crime in Barnet between 2021 and 2024
+- asb: most common
+:::
 
-## Spatial Autocorrelation
+## Exploratory Data Analysis
 
-## Kriging
+### Fequency in the Last 12 Months
+
+However, in the last 12 months, violent crime has become the most common type of crime, which raises concerns.
+
+```{r fig.height = 6, fig.width = 12}
+readRDS(here("1_data", "pl_freq2.RDS"))
+```
+
+::: {.notes} 
+- trend changed in the last 12 months
+- violent crime: most common
+:::
+
+## Global Spatial Autocorrelation
+
+::: {.callout-note appearance="minimal"}
+Spatial autocorrelation measures the extent to which values in a spatial dataset are similar or dissimilar to their neighbours. Spatial correlation can be positive (clustering), negative (dispersion) or zero (random).
+:::
+
+After creating distance-based weights, global spatial autocorrelation test was conducted for each type of crime.
+
+Only anti-social behaviour showed a significant spatial autocorrelation (p-value \< 0.001) with a Moran's I statistic of 1.2E-03, which was a weak positive autocorrelation.
+
+```{r}
+readRDS(here("1_data", "fl_moran.RDS"))
+```
+
+Changing the distance threshold did not change the finding.
+
+::: {.notes} 
+- before building models, spatial autocorrelation for each type of crime
+- see if values are similar between neighbours
+- only ASB showed significant autocorrelation 
+- however, even that one was weak
+- the magnitude very small
+:::
+## Local Spatial Autocorrelation for ASB
+
+As anti-social behaviour (ASB) only demonstrated spatial autocorrelation, the points that precisely show autocorrelation will be identified.
+
+Most points were not statistically significant. However, some cold spots were detected in Burnt Oak and East Finchely.
+
+```{r}
+readRDS(here("1_data", "fl_local_moran.RDS"))
+```
+
+```{r fig.height = 4, fig.width = 6, fig.align = "center"}
+readRDS(here("1_data", "m_int_local.RDS"))
+```
+
+::: {.notes} 
+- Since only asb showed some spatial pattern, from here and onwards, I'll only focus on ASB
+- After identifying global autocorrelation, I looked into where exactly such autocorrealtion happens
+- Not significant
+- Low-Low clusters mostly Burnt Oak & East Finchley
+:::
+
+## Kriging Model
+
+::: {.callout-note appearance="minimal"}
+Kriging is a method of spatial interpolation, which models the spatial relationship between points and hence gives less weight to points that are farther away from each other. A kriging model creates a prediction surface based on location coordinates and other predictors.
+:::
+
+```{r fig.height = 4, fig.width = 6, fig.align = "center"}
+readRDS(here("1_data", "multi_krige_map.RDS"))
+```
+
+The multivariate kriging model gave a predicted count of ASB ranging from 1.3 to 24.4.
+
+The highest prediction was estimated to be in North Finchley, close to a many shops on high street. A couple more hot spots were identified in Golders Green and Colindale.
+
+::: {.notes} 
+- Kriging - spatial interpolation method
+- Uses distinct location coordinates & other preidctors  
+- Cool - make prediction surface over unknown locations: no asb took place before
+- Highest prediction in North Finchley: loads of shops
+- Other hotspots - Golders Green & Colindale
+:::
+
+## Kriging Model Evaluation
+
+Overall, kriging model had an root mean square error (RMSE) of 12.1.
+
+```{r fig.height = 4, fig.width = 6, fig.align = "center"}
+readRDS(here("1_data", "m_krige_error.RDS"))
+```
+
+The error ranged from -20.5 to 259.5 and had a median of -0.1 and a mean of 3.3. Assuming that the absolute error lower than 10 is a moderate estimation, the model fairly predicts the number of ASB.
+
+However, the model wasn’t able to capture high ASB crime spots. Greatest error was spotted along North Circular Road in East Finchley near St Pancras and Islington Cemetery. While the model predicted about 3.5 ASB crimes based on places around, there were 163 ASB crimes over three years.
+
+::: {.notes} 
+- Model evaluation - RMSE of 12.1
+- Map of error term - difference between actual & predicted
+- Most points - moderate prediciton
+- Almost no overprediction
+- Real problem was underestimation 
+- Interesting Point in Finchley
+- Error was almost 160
+- Highly residential; blocks of flats 
+:::
+
+## Kriging Model Evaluation
+
+### Test and Train Error
+
+Before building a kriging model, principal component analysis (PCA) was performed. Rather than building kriging model with 52 predictors, seven principal components, which contained about 70% of information of the predictors, were used to make predictions.
+
+```{r fig.width = 6, fig.height = 3, fig.align = "center"}
+readRDS(here("1_data", "kriging_rmse_combined.rds"))
+```
+
+Train error is negligible as its value is extremely small.
+
+On the other hand, test error shows some variation over different number of principal components.
+
+Keeping 4 or 6 components appears to be a reasonable choice as RMSE is fairly low with 4 or 6 components.
+
+For easier interpretation, 4 was chosen as the number of components for PCA model.
+
+::: {.notes} 
+- model built with principal components instead of places 
+- PCA (Principal Component Analysis) - summarised 52 places into 7 components
+- question - giving too much input to the model so that it is overfitting: good accuracy but poor prediction
+- having more than 3 to 4 dimensions - not easily interpretable
+- decide on appropriate number of components
+- train & test error
+- train error - negligible
+- test error - 7 is the best, but 4 & 6 also reasonable 
+- easier interpretation - chose 4 
+:::
 
 ## Principal Component Analysis
 
-## Multi-Kriging
+::: {.callout-note appearance="minimal"}
+Principal Component Analysis (PCA) is a linear dimensionality reduction method. The data is linearly transformed onto a new coordinate system in a way that it identifies principal components capturing the largest variation in the data.
+:::
 
-## Geographically Weighted Regression
+![](images/scree_plot.jpg){fig-align="center" width="350"}
+
+Dimension 1 to 7 explained about 70% of the total variance.
+
+::: {.notes} 
+- result of PCA
+- dimension 1 to 7 represented 70% of all the places information
+- wonder what those mean
+:::
+
+## Principal Component Analysis
+
+| Dimension | Top 10 Contributors                                                                                                                                                                                | Main Theme         |
+|-------------------|--------------------------|----------------------------|
+| 1         | Distance to nearest: car repair shop, electronics shop, money exchange and transfer, garages, vet, houseware shop, gas station, liquor shop, and launderette                                       | Urban outskirt     |
+| 2         | Distance to nearest: bakery, bank, clothes, lawyer’s office, bridge, real estate agent, post-secondary institution (e.g., college or university), ATM machines, post office, and convenience store | High streets       |
+| 3         | Distance to nearest: bar, clinic, doctor’s office, houseware shop, aesthetics shop (beauty), lawyer’s office, post-secondary institution, hospital, post office, and vet                           | Healthcare setting |
+| 4         | Distance to nearest: post depot, garage, grave yard, post office, warehouse, car wash, car dealer, aesthetics, and clothing shop                                                                   | Urban outskirt     |
+
+::: {.notes} 
+- top 10 contributors to the construction of dimensions
+- based on top 10 contributors, main theme of dimension 1 - urban outskirt; dim2 - high streets; dim3 - healthcare; dim4 - urban outskirt
+:::
+
+## Random Forest Model
+
+Among linear regression, support vector machine and random forest models in a five-fold cross validation set, random forest model had lowest error measured by RMSE.
+
+```{r fig.height = 6}
+readRDS(here("1_data", "ml_p_vip.rds"))
+```
+
+The 10 most important features in the random forest model were vicinity to: clothing shop, bicycle parking, houseware shop, parking lot, bank, pharmacy, convenience, fuel, restaurant, and community centre. These are a mix of features from high streets and urban outskirts.
+
+::: {.notes} 
+- more classic machine learning models
+- built linear regression, svm, rf
+- rf performed best
+- these are the 10 most important features in building rf model
+- mix of features from high streets & urban outskirts
+:::
+
+## Random Forest Model
+
+```{r fig.width = 6, fig.height = 4, fig.align = "center"}
+readRDS(here("1_data", "m_rf.rds"))
+```
+
+Predicted count of ASB by random forest model is overall similar to that of kriging model, however, with a slightly wider range.
+
+Highest prediction of around 40 ASB cases was estimated in Chipping Barnet.
+
+::: {.notes} 
+- similar prediction as kriging but with slightly wider range 
+- highest prediction of around 40 asb - Chipping Barnet
+:::
+
+## Random Forest Model Evaluation
+
+![](images/p_rf.jpg){fig-align="center" width="500"}
+
+Similar to kriging model, the model was not able to predict the points with high number of ASB points.
+
+::: {.notes} 
+- overall, rf was good at predicting low counts, but not high counts, similar to kriging
+- outliers - points actual count was above 50
+:::
+
+## Random Forest Outlier Analysis
+
+### **Values above 50**
+
+```{r fig.width = 6, fig.height = 4, fig.align = "center"}
+readRDS(here("1_data", "ml_m_outlier.rds"))
+```
+
+Highest error was observed in North Cricklewood around Pennine Mansions. We can see that the point is located within blocks of flats and is in the vicinity of some shops and bus stations on the street.
+
+::: {.notes} 
+- here highest error observed in North Cricklewood
+- also a lot of flats
+:::
+
+## Summary
+
+-   **Anti-social behaviour** **(N = 25,551)** was the most prevalent type of crime in Barnet between April 2021 and March 2024. However, in the last 12 months between April 2023 and March 2024, **violent crime (N = 7,217)** was the most common type of crime, followed by anti-social behaviour (N = 6,912), which raises concerns.\
+
+-   **Only anti-social behaviour** of all crime types demonstrated a statistically significant **spatial autocorrelation**. That is, areas nearby locations where anti-social behaviour took place are also likely to have anti-social behaviour. Changing the threshold of distance for classifying neighbouring points did not change the finding.\
+
+-   Distances to each nearest place of interest were summarised into seven components by **PCA**. Evaluation of multivariate kriging model later showed that four components are sufficient for the model to perform. The **four components** primarily captured **urban outskirts, high streets and healthcare settings**.\
+
+-   **Kriging** model predicted the number of anti-social behavoiur, ranging from **1.3 to 25.5.** When the prediction was compared with the actual count of anti-social behaviour, it fairly captured the locations where anti-social behaviour did not happen too frequently. Nonetheless, the model **poorly captured hot spots.** This could be due to high resident or transient population density in the area.\
+
+-   Amongst linear regression, support vector machine and random forest models, **random forest** performed best. Distance to nearest clothes shop, bicycle parking spaces, houseware stores, car parking lots, bank, pharmacy, convenience store, gas station, restaurant, and community centre were the ten most important features in the random forest model. However, similar to kriging model, the random forest model was **not able to capture hot spots of anti-social behaviour**. Given that the locations with highest error observed were in either blocks of flats or near tube station, it is also likely that the model’s underestimation arises from the lack of adjustment of crime count by population density.
+
+::: {.notes} 
+- asb: most common all-time; spatial autocorrelation
+- PCA: summarised places to four, which mainly captured features of urban outskirts, high streets and healthcare settings
+- both kriging & rf: pretty good at detecting cold spots of ASB but not hotspots
+- possible explanation is that the models predicted the count of ASB not rate, which would have been adjusted for population density
+:::
+
+## Limitation & Future Project Direction
+
+1.  **Lack of adjustment for population density**
+
+    -   Adjustment by population traffic with footfall data
+
+    -   Subset crime points around tube stations and adjust traffic volume with tap in and out data by TfL
+
+2.  **Weak spatial autocorrelation**
+
+    -   Subset different time range or different areas
+
+3.  **Data Quality**
+
+    -   **Crime data**
+
+        -   Biased patterns in patrol, leading to more records of crime near police station
+
+        -   Retroactive update of crime count
+
+            -   Limiting the data import to the second or third latest month
+
+    -   **Places data**
+
+        -   May not be totally inclusive of terrestrial information
+
+            -   Scoping places with safety neighbourhood team
+
+::: {.notes} 
+- looking forward to getting footfall data to calculate rate
+- alternative, subset crime points around tube stations - adjust for traffic volume with TfL's tap in and out dat
+- weak autocorrleation
+- subset different time range / different areas
+- data quality
+- asked met police about how they patrol - start from police station and randomly patrol
+- very likely that more crimes will be recorded near station, which was shown in crime data
+- retroactive counting
+- places data - 52 but could be still missing out
+- cooperate with safety neighbourhood team to scope more places together
+:::
+
+## Strength & Lessons Learned
+
+1.  Kriging model was able to make prediction over location where no anti-social behaviour was not observed in the period of investigation.
+
+2.  Both kriging and random forest models were able to identify cold spots of anti-social behaviour within the London Borough of Barnet. This may be of use to Metropolitan Police to optimise resource allocation.
+
+3.  Lesson learned include:
+
+    -   Importance of version control & utilising `saveRDS()`
+
+    -   Importance of evaluation to test model performance
+
+::: {.notes} 
+- kriging - can predict asb counts where no asb has happened before 
+- council person - hot spot
+- met police - detecting cold spot helpful to optimise resource allocation
+
+- lessons during this long-term project
+- how important it is to do version control well
+- github repository
+- how important it is to test model performance 
+:::
+
+## End
+### 📝Github Repository: https://github.com/hamchang95/arc_lbb
+### 📍Project Website: https://hamchang95.github.io/arc_lbb_website/
+### 📩Contact: hannah.chang@barnet.gov.uk

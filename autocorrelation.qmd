@@ -111,7 +111,8 @@ ggplot() +
 dist_weight_asb <- nb2listw(nb_dist_band_asb)
 ```
 
-The critical threshold for ASB was 660m. That is, ASB points were considered neighbours 
+The critical threshold for ASB was 660m. That is, ASB points were considered neighbours if they were within 660m from one another.
+
 #### Repeat
 ##### Define Function: create_dist_weight()
 ```{r}
@@ -239,10 +240,38 @@ print(moran_asb)
 
 #### Repeat 
 ```{r}
+#--Loop 
 l_moran <- vector("list", length(l_crime))
 l_moran <- map2(.x = l_crime, .y = l_weight, .f = ~spdep::moran.test(.x$count, listw = .y))
 
 lapply(l_moran, print)
+
+#--Combine results
+df_moran <- l_moran %>%
+  data.table::rbindlist() %>%
+  slice(c(1, 4, 7, 10, 13, 16)) %>%
+  mutate(type = names(l_crime), .before = everything()) %>%
+  select(type, `p.value`, estimate) %>%
+  rename(Type = 1, `P Value` = 2, `Moran's I` = 3) %>%
+  mutate(Type = case_when(
+    Type == "asb" ~ "Anti-Social Behaviour",
+    Type == "vc" ~ "Violent Crime",
+    Type == "other" ~ "Other",
+    Type == "vhc" ~ "Vehicle Crime",
+    Type == "tfp" ~ "Theft from the Person",
+    Type == "brg" ~ "Burglary"
+  )) %>%
+  mutate(across(where(is.numeric), ~format(round(.x, 4), scientific = TRUE)))
+
+fl_moran <- df_moran %>%
+  flextable() %>%
+  #flextable::width(j = c(1, 3), 1.2) %>%
+  flextable::bg(i = 1, bg = "#F4ECC2") %>%
+  flextable::autofit()
+
+fl_moran
+
+#saveRDS(fl_moran, here("1_data", "fl_moran.RDS"))
 ```
 
 Only ASB points within 100m showed a weak positive spatial auto-correlation. We will then run the test again with a different set of radius for the buffer.
@@ -300,21 +329,30 @@ asb <- asb |>
 
 asb$quadrant <- factor(asb$quadrant, levels = c("High-High", "Low-Low", "High-Low", "Low-High", "Not Significant"))
 
-table(asb$quadrant) |>
+fl_local_moran <- table(asb$quadrant) |>
   as.data.frame() |>
-  flextable()
+  rename(Quadrant = 1, Count = 2) %>%
+  flextable() %>%
+  flextable::autofit()
+
+fl_local_moran
+#saveRDS(fl_local_moran, here("1_data", "fl_local_moran.RDS"))
 
 #--Plot the spatial data with color encoding for Local Moran's I
-ggplot() +
+p_local <- ggplot() +
   geom_sf(data = asb, aes(colour = quadrant)) +
   geom_sf(data = bnt_shp, alpha = 0, lwd = 2) +
   theme_minimal() +
   labs(colour = "Quadrant") +
   ggtitle("Local Moran Cluster Map of ASB Points")
 
+p_local
+#saveRDS(p_local, here("1_data", "m_static_local.rds"))
+
+#--Create interactive map
 pal_asb <- leaflet::colorFactor(palette = 'RdYlGn', asb$quadrant)
 
-leaflet::leaflet(data = st_transform(asb, 4326)) |>
+m_local <- leaflet::leaflet(data = st_transform(asb, 4326)) |>
   leaflet::addTiles() |>
   leaflet::addCircles(
     color = ~pal_asb(quadrant),
@@ -324,4 +362,8 @@ leaflet::leaflet(data = st_transform(asb, 4326)) |>
             values = ~quadrant,
             title = 'Local Moran Cluster of ASB',
             opacity = 0.7)
+
+m_local
+
+#saveRDS(m_local, here("1_data", "m_int_local.rds"))
 ```

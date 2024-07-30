@@ -230,7 +230,7 @@ test_sf_wgs84 <- test_sf_wgs84 %>%
     ))
 
 #--Create interactive map
-leaflet(test_sf_wgs84) |> 
+m_error <- leaflet(test_sf_wgs84) |> 
     leaflet::addPolygons(data = bnt_shp, fillOpacity = 0, col = "black") |>
     leaflet::addTiles() |>
     leaflet::addCircles(
@@ -259,6 +259,8 @@ leaflet(test_sf_wgs84) |>
             opacity = 1) %>%
     leaflet::addLayersControl(overlayGroups = test_sf_wgs84$error_group, options = layersControlOptions(collapsed = FALSE))
 
+m_error
+#saveRDS(m_error, here("1_data", "m_krige_error.RDS"))
 
 #--Get summary of error
 summary(test_sf_wgs84$error)
@@ -628,7 +630,7 @@ for (i in 1:2){
 }
 
 #--Combine plots
-cowplot::plot_grid(
+combined <- cowplot::plot_grid(
   p_error_list[[1]][[1]],
   p_error_list[[2]][[1]],
   p_error_list[[3]][[1]],
@@ -637,6 +639,17 @@ cowplot::plot_grid(
   p_error_list[[3]][[2]],
   labels = c(rep("Train", 3), rep("Test", 3))
 )
+
+combined
+
+rmse_combined <- cowplot::plot_grid(
+  p_error_list[[1]][[1]],
+  p_error_list[[1]][[2]], 
+  labels = c("Train", "Test")) 
+
+rmse_combined
+#saveRDS(combined, here("1_data", "kriging_combined_error.rds"))
+#saveRDS(rmse_combined, here("1_data", "kriging_rmse_combined.rds"))
 ```
 
 Train error is negligible as its value is extremely small in all types of metrics. On the other hand, test error shows some variation over different number of principal components. Keeping 4 or 6 components appears to be a reasonable choice as RMSE is fairly low with 4 or 6 components. For easier interpretation, we will choose 4 as the number of components for PCA model. 

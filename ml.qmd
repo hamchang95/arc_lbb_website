@@ -264,6 +264,47 @@ rf_test_predictions <- predict(final_rf_fit, asb_test_preprocessed)
 #--Evaluate the predictions
 rf_test_results <- bind_cols(asb_test_preprocessed, rf_test_predictions)
 
+#--Map
+rf_fin <- rf_test_results %>%
+  left_join(asb_test) %>%
+  mutate(error = n - `.pred`) %>%
+  mutate(pred_popup = paste0("Predicted: ", as.character(round(`.pred`, 1))))
+
+pal <- colorNumeric(palette = c("green", "red"), domain = rf_fin$.pred)
+pal_error <- colorNumeric(palette = c("green", "red"), domain = rf_fin$error)
+
+m_rf <- leaflet(rf_fin) |> 
+    leaflet::addPolygons(data = bnt_shp, fillOpacity = 0, col = "black") %>%
+    leaflet::addTiles() |>
+    leaflet::addCircles(
+      color = ~pal(rf_fin$.pred),
+      popup = ~pred_popup,
+      opacity = 0.6) |>
+    leaflet::addLegend('bottomright',
+            pal =pal,
+            values = ~.pred,
+            title = 'Predicted Value',
+            opacity = 1)
+
+m_rf
+
+m_rf_error <- leaflet(rf_fin) |> 
+    leaflet::addPolygons(data = bnt_shp, fillOpacity = 0, col = "black") %>%
+    leaflet::addTiles() |>
+    leaflet::addCircles(
+      color = ~pal_error(rf_fin$error),
+      opacity = 0.6) |>
+    leaflet::addLegend('bottomright',
+            pal =pal_error,
+            values = ~error,
+            title = 'Actual - Predicted',
+            opacity = 1)
+
+m_rf_error
+
+#saveRDS(m_rf, here("1_data", "m_rf.RDS"))
+#saveRDS(m_rf_error, here("1_data", "m_rf_error.RDS"))
+
 #--Calculate performance metrics
 metrics_result <- rf_test_results |>
   metrics(truth = n, estimate = .pred)

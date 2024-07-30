@@ -3,6 +3,25 @@
   height: 100%;
 }
 
+.reveal table {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: auto; /* Enable horizontal scrolling if the table is too wide */
+  margin: auto;
+  border-collapse: collapse; /* Ensure the table borders are collapsed */
+}
+
+.reveal table th, .reveal table td {
+  padding: 4px; /* Add padding to table cells */
+  text-align: left; /* Align text to the left */
+  border: 1px solid #ddd; /* Add a border to table cells */
+  font-size: 16px;
+}
+
+.reveal table th {
+  background-color: #f2f2f2; /* Add a background color to table headers */
+}
+
 .reveal .slides {
   width: 100%;
   height: 100%;
@@ -13,17 +32,52 @@
   height: 100%;
 }
 
-.reveal .slides section h2 {
-    font-size: 44px; /* Adjust the font size as needed */
-  }
+.reveal .slides section h1 {
+  position: absolute;
+  top: 40%; /* Adjust this value to move the title down from the top */
+  left: 50%; /* Center the title horizontally */
+  transform: translateX(-50%); /* Center the title horizontally */
+  font-size: 40px; /* Adjust this value to change the font size */
+  color: black; /* Change text color for contrast */
+  text-align: center; /* Center the text */}
 
- .reveal .slides section h3 {
+.reveal .slides section h2 {
     font-size: 32px; /* Adjust the font size as needed */
   }
 
-.reveal .slides section p {
-    font-size: 22px; /* Adjust the font size for body text as needed */
+ .reveal .slides section h3 {
+    font-size: 22px; /* Adjust the font size as needed */
   }
+
+.reveal .slides section p {
+    font-size: 18px; /* Adjust the font size for body text as needed */
+  }
+
+/* Custom font size for unordered list items */
+.reveal .slides section ul li {
+  font-size: 18px; /* Adjust this value to change the font size */
+}
+
+/* Custom font size for ordered list items */
+.reveal .slides section ol li {
+  font-size: 18px; /* Adjust this value to change the font size */
+}
+
+/* Custom font size for indented bullet points (second level) */
+.reveal .slides section ul ul li {
+  font-size: 16px; /* Adjust this value to change the font size */
+}
+
+/* Custom font size for the author text */
+.quarto-title-author-name {
+  position: absolute;
+  top: 60%; /* Adjust this value to move the title down from the top */
+  left: 50%; /* Center the title horizontally */
+  transform: translateX(-50%); /* Center the title horizontally */
+  font-size: 18px; /* Adjust this value to change the font size */
+  text-align: center; /* Center the text */
+}
+
 
 .code-fold {
     font-size: 22px; /* Adjust the font size for code blocks as needed */
@@ -48,4 +102,14 @@
 
 .reveal dl.code-annotation-container-grid dt {
   margin-top: 0.4rem;
+}
+
+.navigate-right .controls-arrow {
+  font-size: 20px;
+  color: darkslateblue;
+}
+
+.navigate-left .controls-arrow {
+  font-size: 20px;
+  color: darkslateblue;
 }
